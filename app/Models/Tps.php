@@ -10,7 +10,7 @@ class Tps extends Model
 {
     protected $table = 'tps';
     protected $primaryKey = 'id';
-    protected $fillable = ['namaTPS', 'kelurahans_id', 'tahun'];
+    protected $fillable = ['namaTPS', 'kelurahans_id', 'tahun', 'latitude', 'longitude'];
 
     public function kelurahan()
     {

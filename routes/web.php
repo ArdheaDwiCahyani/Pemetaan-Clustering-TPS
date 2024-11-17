@@ -93,8 +93,8 @@ Route::controller(userController::class)->prefix('user')->group(function() {
 });
 
 Route::controller(prosesController::class)->prefix('proses')->group(function() {
-    Route::get('/proses', 'performClustering')->name('proses');
-    
+    Route::get('/proses', 'showProses')->name('proses');
+    Route::post('/proses', 'showProses')->name('proses.cluster');
 });
 
 // Route::get('/normalize', [prosesController::class, 'normalizeSampahData']);

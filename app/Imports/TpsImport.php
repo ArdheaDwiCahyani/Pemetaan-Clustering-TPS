@@ -28,6 +28,8 @@ class TpsImport implements ToModel, WithHeadingRow
         $tps = Tps::firstOrCreate([
             'namaTPS' => $row['nama_tps'],
             'kelurahans_id' => $kelurahan->id,
+            'longitude' => $row['longitude'],
+            'latitude' => $row['latitude'],
         ]);
 
         //mendapatkan parameter jarak ke tpa

@@ -40,13 +40,24 @@ class tpsController extends Controller
             'nilai_parameter' => 'required|array',
             'nilai_parameter.*' => 'numeric',
             'params_id' => 'required|array',
-            'params_id.*' => 'exists:params,id'
+            'params_id.*' => 'exists:params,id',
+            'latitude' => 'required|numeric|min:-90|max:90',
+            'longitude' => 'required|numeric|min:-180|max:180',
         ]);
+
+        
+        // Pastikan koordinat dibatasi dengan presisi tertentu sebelum disimpan
+        $latitude = round($validatedData['latitude'], 8);  // Menggunakan 8 angka desimal
+        $longitude = round($validatedData['longitude'], 8);  // Menggunakan 8 angka desimal
+        
 
         $tps = Tps::create([
             'namaTPS' => $validatedData['namaTPS'],
             'kelurahans_id' => $validatedData['kelurahans_id'],
+            'latitude' => $latitude,
+            'longitude' => $longitude,
         ]);
+        
 
         //menyimpan parameter dengan nilai ke tabel pivot (tpsParameter)
         $parameterData = [];
@@ -88,19 +99,23 @@ class tpsController extends Controller
             'nilai_parameter' => 'required|array',
             'nilai_parameter.*' => 'numeric',
             'params_id' => 'required|array',
-            'params_id.*' => 'exists:params,id'
+            'params_id.*' => 'exists:params,id',
+            'latitude' => 'required|numeric|min:-90|max:90',
+            'longitude' => 'required|numeric|min:-180|max:180',
         ]);
 
         $tps = Tps::find($id);
         $tps->update([
             'namaTPS' => $validatedData['namaTPS'],
             'kelurahans_id' => $validatedData['kelurahans_id'],
+            'latitude' => $validatedData['latitude'],
+            'longitude' => $validatedData['longitude'],
         ]);
 
         foreach ($validatedData['params_id'] as $index => $params_id) {
             // Ambil parameter berdasarkan id
             $parameter = Parameter::find($params_id);
-    
+
             // Jika parameter ditemukan, lakukan pembaruan
             if ($parameter) {
                 // Tentukan entity sebagai 'tps' jika ini adalah parameter untuk Tps

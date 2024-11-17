@@ -37,6 +37,16 @@
                                     @endif
                                 @endforeach
                             </div>
+                            <div class="form-group mb-4">
+                                <label for="longitude" class="text-dark text-sm font-weight-medium">Koordinat Longitude (X)</label>
+                                <input type="number" class="form-control" id="longitude" name="longitude" step="any"
+                                    placeholder="Masukkan Koordinat Longitude">
+                            </div>
+                            <div class="form-group mb-4">
+                                <label for="latitude" class="text-dark text-sm font-weight-medium">Koordinat Latitude (Y)</label>
+                                <input type="number" class="form-control" id="latitude" name="latitude" step="any"
+                                    placeholder="Masukkan Koordinat Latitude">
+                            </div>
                         </div>
                         <div class="card-footer mt-0">
                             <button type="submit" class="btn btn-primary bs-btn-active-bg">Simpan</button>

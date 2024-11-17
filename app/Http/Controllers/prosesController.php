@@ -1,12 +1,41 @@
 <?php
 
 namespace App\Http\Controllers;
+
+use App\Models\Sampah;
 use App\Models\Tps;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ProsesController extends Controller
 {
-    public function normalizeSampahData()
+    // Fungsi untuk menampilkan halaman proses dengan dropdown tahun
+    public function showProses(Request $request)
     {
+        // Mengambil tahun yang ada dalam tabel Sampah
+        $tahun = Sampah::select('tahun')
+            ->distinct()
+            ->orderBy('tahun', 'desc')
+            ->pluck('tahun')
+            ->toArray();
+
+        // Menangani kasus saat tahun belum dipilih atau tidak ada data
+        $selectedYear = $request->input('tahun');
+
+        if ($selectedYear && in_array($selectedYear, $tahun)) {
+            // Jika tahun valid dan dipilih
+            $groupedByCluster = $this->performClustering($selectedYear);
+            return view('proses.index', compact('tahun', 'selectedYear', 'groupedByCluster'));
+        }
+
+        // Jika belum memilih tahun atau tidak ada data yang cocok
+        return view('proses.index', compact('tahun'))->with('groupedByCluster', null);
+    }
+
+    // Fungsi untuk normalisasi data sampah berdasarkan tahun
+    public function normalizeSampahData($tahun)
+    {
+        // Mengambil data sampah yang terkait dengan tahun tertentu
         $sampahData = Tps::with([
             'parameterSampah' => function ($query) {
                 $query->whereIn('namaParameter', ['Volume Sampah', 'Rata-Rata Jarak'])->withPivot('nilai_parameter');
@@ -14,8 +43,12 @@ class ProsesController extends Controller
             'parameterTps' => function ($query) {
                 $query->where('namaParameter', 'Jarak ke TPA')->withPivot('nilai_parameter');
             }
-        ])->get();
+        ])
+            ->whereHas('sampah', function ($query) use ($tahun) {
+                $query->where('tahun', $tahun);
+            })->get();
 
+        // Inisialisasi array untuk menyimpan data normalisasi
         $volumeData = [];
         $jarakData = [];
         $rataRataData = [];
@@ -32,6 +65,7 @@ class ProsesController extends Controller
                 'rata_rata_jarak' => null,
             ];
 
+            // Menyimpan nilai parameter yang sesuai
             foreach ($tps->parameterSampah as $parameter) {
                 if ($parameter->namaParameter == 'Volume Sampah') {
                     $volumeData[] = $parameter->pivot->nilai_parameter;
@@ -50,19 +84,21 @@ class ProsesController extends Controller
             $originalData[] = $originalEntry;
         }
 
+        // Fungsi untuk normalisasi data
         $normalize = function ($data) {
             $min = !empty($data) ? min($data) : 0;
             $max = !empty($data) ? max($data) : 1;
             return array_map(fn($value) => ($max - $min) ? ($value - $min) / ($max - $min) : 0, $data);
         };
 
+        // Normalisasi data berdasarkan volume, jarak, dan rata-rata jarak
         $normalizedData = [
             'volume' => $normalize($volumeData),
             'jarak' => $normalize($jarakData),
             'rataRata' => $normalize($rataRataData),
         ];
 
-        // Menggabungkan data asli dengan data normalisasi
+        // Menggabungkan data asli dengan data yang sudah dinormalisasi
         $normalizedDataWithOriginal = collect($originalData)->map(function ($original, $index) use ($normalizedData) {
             return array_merge($original, [
                 'normalized_volume' => $normalizedData['volume'][$index] ?? null,
@@ -74,16 +110,28 @@ class ProsesController extends Controller
         return $normalizedDataWithOriginal;
     }
 
-    public function performClustering()
+    // Fungsi untuk melakukan klasterisasi dengan K-Means++
+    public function performClustering($tahun)
     {
-        $normalizedData = $this->normalizeSampahData()->toArray();
+        // Mengambil dan menormalisasi data sampah berdasarkan tahun
+        $normalizedData = $this->normalizeSampahData($tahun)->toArray();
+
+        // Mengecek apakah data yang dinormalisasi kosong
+        if (empty($normalizedData)) {
+            return redirect()->back()->with('error', 'Data untuk tahun tersebut tidak tersedia untuk klasterisasi.');
+        }
+
+        // Melakukan klasterisasi dan mengembalikan hasil
         $formattedData = array_map(fn($item) => [
             $item['normalized_volume'],
             $item['normalized_jarak'],
             $item['normalized_rata_rata_jarak'],
         ], $normalizedData);
 
+        // Jumlah klaster yang diinginkan
         $k = 3;
+
+        // Menjalankan algoritma K-Means++
         $result = $this->kmeansPlus($k, $formattedData);
 
         $clusteredData = [];
@@ -101,63 +149,91 @@ class ProsesController extends Controller
             }
         }
 
-        // Kelompokkan data berdasarkan cluster
         $groupedByCluster = collect($normalizedData)->groupBy('cluster')->sortKeys();
-        // dd($groupedByCluster);
 
-        // Kirim data terkelompok ke view
-        return view('proses.index', compact('groupedByCluster'));
+        return $groupedByCluster;
     }
 
-
+    // Fungsi untuk melakukan K-Means++ (dengan pengambilan centroid yang lebih cermat)
     private function kmeansPlus($k, $data)
     {
+        if (empty($data)) {
+            throw new \Exception("Data untuk klasterisasi kosong.");
+        }
+
         $clusters = [];
         $centroids = [];
 
-        // Inisialisasi centroid pertama secara acak
-        // $centroids[] = $data[array_rand($data)];
-        $centroids[] = $data[18];
+        // Inisialisasi centroid pertama secara spesifik, misalnya data ke-10 sebagai centroid pertama
+        $centroids[] = $data[9];
 
-        // Pilih centroid yang tersisa menggunakan pendekatan K-Means++
+        // Logging informasi mengenai centroid yang dipilih
+        Log::info('Centroid pertama dipilih:', [
+            'index' => 9,
+            'centroid' => $data[9]
+        ]);
+
+        // Memilih centroid yang tersisa menggunakan K-Means++
+        // Pilih centroid yang tersisa menggunakan K-Means++
         while (count($centroids) < $k) {
-            $distances = array_map(function ($point) use ($centroids) {
-                return min(array_map(function ($centroid) use ($point) {
+            // Menghitung D(x)^2 untuk setiap titik data
+            $distancesSquared = array_map(function ($point) use ($centroids) {
+                $minDistance = min(array_map(function ($centroid) use ($point) {
                     return $this->euclideanDistance($point, $centroid);
                 }, $centroids));
+                return pow($minDistance, 2);
             }, $data);
 
-            $cumulativeDistances = array_sum($distances);
-            // $randomDistance = mt_rand() / mt_getrandmax() * $cumulativeDistances;
-            $randomDistance = 0.26 / 0.5 * $cumulativeDistances;
+            // Menghitung total D(x)^2 untuk semua titik
+            $totalDistanceSquared = array_sum($distancesSquared);
 
+            // Menghitung nilai K untuk setiap titik (probabilitas berdasarkan D(x)^2)
+            $probabilities = array_map(function ($distanceSquared) use ($totalDistanceSquared) {
+                return $distanceSquared / $totalDistanceSquared;
+            }, $distancesSquared);
+
+            // Menghitung jarak kumulatif untuk memilih centroid berikutnya secara acak berdasarkan distribusi probabilitas K
+            $cumulativeDistances = [];
+            $sum = 0;
+            foreach ($probabilities as $probability) {
+                $sum += $probability;
+                $cumulativeDistances[] = $sum;
+            }
+
+            
+            $randomDistance = mt_rand() / mt_getrandmax(); // Nilai acak antara 0 dan 1
+
+            // Menemukan titik yang dipilih berdasarkan randomDistance
             foreach ($data as $index => $point) {
-                $randomDistance -= $distances[$index];
-                if ($randomDistance <= 0) {
+                if ($randomDistance <= $cumulativeDistances[$index]) {
                     $centroids[] = $point;
+                    Log::info('Centroid baru dipilih:', ['index' => $index, 'point' => $point, 'random value' => $randomDistance]);
                     break;
                 }
             }
         }
 
+
+        // Proses klasterisasi dengan centroid yang sudah ada
         $iterations = 0;
         while ($iterations < 100) {
             $clusters = array_fill(0, $k, []);
 
-            // Assign setiap titik ke centroid terdekat
+            // Menetapkan setiap titik ke centroid terdekat
             foreach ($data as $point) {
                 $distances = array_map(fn($centroid) => $this->euclideanDistance($point, $centroid), $centroids);
                 $closestCentroid = array_keys($distances, min($distances))[0];
                 $clusters[$closestCentroid][] = $point;
             }
 
-            // Update centroid berdasarkan rata-rata titik di setiap cluster
+            // Memperbarui centroid berdasarkan rata-rata titik dalam setiap cluster
             $newCentroids = array_map(function ($cluster) {
                 $clusterSize = count($cluster);
                 if ($clusterSize === 0) return [0, 0, 0]; // Hindari pembagian dengan nol
                 return array_map(fn(...$coords) => array_sum($coords) / $clusterSize, ...$cluster);
             }, $clusters);
 
+            // Jika centroid tidak berubah, keluar dari loop
             if ($centroids === $newCentroids) break;
 
             $centroids = $newCentroids;
@@ -167,9 +243,7 @@ class ProsesController extends Controller
         return ['centroids' => $centroids, 'clusters' => $clusters];
     }
 
-    /**
-     * Method untuk menghitung jarak Euclidean antara dua titik.
-     */
+    // Fungsi untuk menghitung jarak Euclidean antara dua titik
     private function euclideanDistance($point1, $point2)
     {
         return sqrt(array_sum(array_map(fn($a, $b) => pow($a - $b, 2), $point1, $point2)));
