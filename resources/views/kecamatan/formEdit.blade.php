@@ -1,7 +1,6 @@
 @extends('layouts.app')
 
 @section('title', 'Data Kecamatan')
-@section('subtitle', 'Form Edit Data')
 
 @section('content')
     <form action="{{ route('kecamatan.tambah.update', $kecamatan->id) }}" method="post" id="myForm">

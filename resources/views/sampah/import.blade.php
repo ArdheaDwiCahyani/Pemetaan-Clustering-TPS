@@ -9,6 +9,7 @@
                     <div class="card shadow mb-0">
                         <div class="card-body">
                             <div class="form-group mb-5">
+                                <input type="hidden" name="tahun" value="{{ request('tahun') }}">
                                 <label for="file" class="text-dark text-sm font-weight-medium">Pilih File</label>
                                 <input type="file" class="form-control" name="file" required>
                             </div>

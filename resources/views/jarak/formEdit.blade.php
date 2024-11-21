@@ -32,7 +32,7 @@
                                 </select>
                             </div>
                             <div class="form-group mb-4">
-                                <label for="jarak" class="text-dark text-sm font-weight-medium">Jarak (km)</label>
+                                <label for="jarak" class="text-dark text-sm font-weight-medium">Jarak (Km)</label>
                                 <input type="number" name="jarak" id="jarak" class="form-control"
                                     placeholder="Masukkan Jarak" required step="0.01" min="0"
                                     value="{{ isset($jarak) ? $jarak->jarak : '' }}">

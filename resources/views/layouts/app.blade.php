@@ -260,6 +260,8 @@
     <!-- Argon Dashboard Scripts -->
     <script src="{{ asset('argon-dashboard/js/argon-dashboard.min.js') }}"></script>
 
+    @yield('scripts')
+
 </body>
 
 </html>

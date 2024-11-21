@@ -8,7 +8,7 @@
     <div class="col-12">
       <div class="card mb-4">
         <div class="card-body">
-          <a href="{{route('parameter.tambah')}}" class="btn btn-outline-primary mb-3 mr-2">Tambah Parameter</a>
+          <a href="{{route('parameter.tambah')}}" class="btn btn-outline-primary mb-3 mr-2">Tambah Data</a>
           <div class="table-responsive p-0">
             <table class="table table align-items-center mb-0 ">
               <thead>

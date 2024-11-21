@@ -1,7 +1,6 @@
 @extends('layouts.app')
 
 @section('title', 'Data Kecamatan')
-@section('subtitle', 'Form Tambah Data')
 
 @section('content')
     <form action="{{ route('kecamatan.tambah.simpan') }}" method="post" id="myForm">

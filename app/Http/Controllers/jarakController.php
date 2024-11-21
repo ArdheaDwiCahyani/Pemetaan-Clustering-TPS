@@ -12,12 +12,22 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class jarakController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $jarak = Jarak::with(['tpsAsal', 'tpsTujuan'])->get();
+        $perPage = $request->input('per_page', 4);
+        $tpsAsalId = $request->input('tps_asal');
+        $jarakQuery = Jarak::with(['tpsAsal', 'tpsTujuan']);
 
-        return view('jarak.index', compact('jarak'));
+        if ($tpsAsalId) {
+            $jarakQuery->where('tps_asal_id', $tpsAsalId);
+        }
+
+        $jarak = $jarakQuery->paginate($perPage);
+        $tpsList = Tps::all();
+
+        return view('jarak.index', compact('jarak', 'tpsList', 'tpsAsalId'));
     }
+
 
     public function tambah()
     {

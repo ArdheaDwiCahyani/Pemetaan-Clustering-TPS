@@ -30,7 +30,7 @@
                                 @if ($param->namaParameter == 'Volume Sampah')
                                     <div class="form-group mb-4">
                                         <label for="volume_sampah_{{ $param->id }}"
-                                            class="text-dark text-sm font-weight-medium">{{ $param->namaParameter }}</label>
+                                            class="text-dark text-sm font-weight-medium">{{ $param->namaParameter }} (Ton)</label>
                                         <input type="number" name="volume_sampah[{{ $param->id }}]"
                                             id="volume_sampah[{{ $param->id }}]" class="form-control" step="any"
                                             required

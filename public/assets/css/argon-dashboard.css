@@ -9397,6 +9397,10 @@ fieldset:disabled .btn {
   margin-top: 1.5rem !important;
 }
 
+.mt-13 {
+  margin-top: 1.9rem !important;
+}
+
 .mt-5 {
   margin-top: 3rem !important;
 }
@@ -10609,6 +10613,10 @@ fieldset:disabled .btn {
 
 .bg-primary {
   background-color: #017534 !important;
+}
+
+.bg-p {
+  background-color: #f0fff7 !important;
 }
 
 .bg-secondary {
@@ -25033,6 +25041,10 @@ p {
 .font-weight-normal {
   font-weight: 400 !important;
 }
+
+/* .font-weight-medium {
+  font-weight: 500 !important;
+} */
 
 .font-weight-bold {
   font-weight: 600 !important;

@@ -22,14 +22,15 @@ class ProsesController extends Controller
         // Menangani kasus saat tahun belum dipilih atau tidak ada data
         $selectedYear = $request->input('tahun');
 
+        $groupedByCluster = null;
+
         if ($selectedYear && in_array($selectedYear, $tahun)) {
             // Jika tahun valid dan dipilih
             $groupedByCluster = $this->performClustering($selectedYear);
-            return view('proses.index', compact('tahun', 'selectedYear', 'groupedByCluster'));
         }
+        
 
-        // Jika belum memilih tahun atau tidak ada data yang cocok
-        return view('proses.index', compact('tahun'))->with('groupedByCluster', null);
+        return view('proses.index', compact('tahun', 'selectedYear', 'groupedByCluster'));
     }
 
     // Fungsi untuk normalisasi data sampah berdasarkan tahun
@@ -42,11 +43,13 @@ class ProsesController extends Controller
             },
             'parameterTps' => function ($query) {
                 $query->where('namaParameter', 'Jarak ke TPA')->withPivot('nilai_parameter');
-            }
+            },
+            'kelurahan'
         ])
             ->whereHas('sampah', function ($query) use ($tahun) {
                 $query->where('tahun', $tahun);
             })->get();
+
 
         // Inisialisasi array untuk menyimpan data normalisasi
         $volumeData = [];
@@ -60,9 +63,12 @@ class ProsesController extends Controller
             $originalEntry = [
                 'tps_id' => $tps->id,
                 'namaTPS' => $tps->namaTPS,
+                'kelurahan' => $tps->kelurahan ? $tps->kelurahan->namaKelurahan : null,
                 'volume' => null,
                 'jarak' => null,
                 'rata_rata_jarak' => null,
+                'longitude' => $tps->longitude,
+                'latitude' => $tps->latitude,
             ];
 
             // Menyimpan nilai parameter yang sesuai
@@ -106,7 +112,6 @@ class ProsesController extends Controller
                 'normalized_rata_rata_jarak' => $normalizedData['rataRata'][$index] ?? null,
             ]);
         });
-
         return $normalizedDataWithOriginal;
     }
 
@@ -134,7 +139,6 @@ class ProsesController extends Controller
         // Menjalankan algoritma K-Means++
         $result = $this->kmeansPlus($k, $formattedData);
 
-        $clusteredData = [];
         foreach ($result['clusters'] as $clusterIndex => $cluster) {
             foreach ($cluster as $dataPoint) {
                 $index = array_search($dataPoint, $formattedData);
@@ -150,6 +154,7 @@ class ProsesController extends Controller
         }
 
         $groupedByCluster = collect($normalizedData)->groupBy('cluster')->sortKeys();
+        // dd($groupedByCluster);
 
         return $groupedByCluster;
     }
@@ -200,8 +205,8 @@ class ProsesController extends Controller
                 $cumulativeDistances[] = $sum;
             }
 
-            
             $randomDistance = mt_rand() / mt_getrandmax(); // Nilai acak antara 0 dan 1
+            // $randomDistance = 0.454214381731215;
 
             // Menemukan titik yang dipilih berdasarkan randomDistance
             foreach ($data as $index => $point) {
@@ -212,7 +217,6 @@ class ProsesController extends Controller
                 }
             }
         }
-
 
         // Proses klasterisasi dengan centroid yang sudah ada
         $iterations = 0;
@@ -247,5 +251,63 @@ class ProsesController extends Controller
     private function euclideanDistance($point1, $point2)
     {
         return sqrt(array_sum(array_map(fn($a, $b) => pow($a - $b, 2), $point1, $point2)));
+    }
+
+    //pemetaan
+    public function exportToGeoJSON($groupedByCluster)
+    {
+        $features = [];
+        foreach ($groupedByCluster as $cluster => $tpsList) {
+            foreach ($tpsList as $tps) {
+                // Pastikan longitude dan latitude adalah tipe numerik
+                $longitude = (float) $tps['longitude'];
+                $latitude = (float) $tps['latitude'];
+
+                // Periksa apakah kelurahan adalah string atau array
+                $kelurahan = is_array($tps['kelurahan']) ? $tps['kelurahan']['namaKelurahan'] : $tps['kelurahan'];
+
+                $features[] = [
+                    'type' => 'Feature',
+                    'geometry' => [
+                        'type' => 'Point',
+                        'coordinates' => [$longitude, $latitude],
+                    ],
+                    'properties' => [
+                        'namaTPS' => $tps['namaTPS'],
+                        'kelurahan' => $kelurahan ?? null,
+                        'volume' => $tps['volume'],
+                        'jarak' => $tps['jarak'],
+                        'rata_rata_jarak' => $tps['rata_rata_jarak'],
+                        'cluster' => $tps['cluster'],
+                        'prioritas' => $tps['prioritas'],
+                    ],
+                ];
+            }
+        }
+
+        return json_encode([
+            'type' => 'FeatureCollection',
+            'features' => $features,
+        ]);
+    }
+
+    //endpoint u/ akses json
+    public function geojsonData($tahun)
+    {
+        $groupedByCluster = $this->performClustering($tahun);
+        return response($this->exportToGeoJSON($groupedByCluster), 200)->header('Content-Type', 'application/json');
+    }
+
+    public function showMap(Request $request)
+    {
+        // Mendapatkan input 'tahun' dari URL, default ke tahun saat ini jika tidak ada
+        $selectedYear = $request->input('tahun', optional(Sampah::first())->tahun);
+
+        // Mendapatkan hasil klasterisasi berdasarkan tahun
+        $groupedByCluster = $this->performClustering($selectedYear);
+
+        // Mengirimkan nilai tahun dan hasil klasterisasi ke view
+        $tahun = Sampah::select('tahun')->distinct()->orderBy('tahun', 'desc')->pluck('tahun')->toArray();
+        return view('proses.map', compact('tahun', 'selectedYear', 'groupedByCluster'));
     }
 }

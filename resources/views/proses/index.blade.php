@@ -27,8 +27,11 @@
                                     <div class="d-flex gap-2">
                                         <button type="submit" class="btn btn-outline-primary" id="proses-btn"
                                             style="min-width: 120px;" disabled>Proses</button>
-                                        <a href="#" class="btn btn-danger" id="pemetaan-btn" style="min-width: 120px;"
-                                            disabled>Pemetaan</a>
+                                        <a href="{{ isset($selectedYear) && $selectedYear ? route('proses.map', ['tahun' => $selectedYear]) : '#' }}"
+                                            class="btn btn-danger" id="pemetaan-btn" style="min-width: 120px;"
+                                            {{ !isset($selectedYear) || !$selectedYear ? 'disabled' : '' }}>
+                                            Pemetaan
+                                        </a>
                                         <a href="#" class="btn btn-primary" id="export-btn" style="min-width: 120px;"
                                             disabled>Export Data</a>
                                     </div>
@@ -39,7 +42,7 @@
                         <!-- Menampilkan hasil clustering jika sudah diproses -->
                         @if (isset($groupedByCluster) && $groupedByCluster)
                             @foreach ($groupedByCluster as $clusterIndex => $clusterData)
-                                <h3>Cluster {{ $clusterIndex + 1 }}</h3>
+                                <h3>Cluster {{ (int) $clusterIndex + 1 }}</h3>
                                 <div class="table-responsive p-0">
                                     <table class="table table align-items-center mb-0" cellspacing="0">
                                         <thead>

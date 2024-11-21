@@ -8,7 +8,7 @@
     <div class="col-12">
       <div class="card mb-0">
         <div class="card-body">
-          <a href="{{route('kecamatan.tambah')}}" class="btn btn-outline-primary mb-3 mr-2"> Tambah Kecamatan </a>
+          <a href="{{route('kecamatan.tambah')}}" class="btn btn-outline-primary mb-3 mr-2"> Tambah Data </a>
           <div class="table-responsive p-0">
             <table class="table table align-items-center mb-0 ">
               <thead>

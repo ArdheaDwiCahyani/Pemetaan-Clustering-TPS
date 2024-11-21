@@ -13,10 +13,11 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class tpsController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $perPage = $request->input('per_page', 4);
 
-        $tps = Tps::with(['parameter', 'kelurahan'])->get();
+        $tps = Tps::with(['parameter', 'kelurahan'])->paginate($perPage);
         $parameter = Parameter::all();
         $kelurahan = Kelurahan::all();
 

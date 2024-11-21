@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('sampah', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('tps_id')->constrained('tps')->onDelete('cascade');
+            $table->foreignId('tps_id')->nullable()->constrained('tps')->onDelete('cascade');
             $table->year('tahun');
             $table->timestamps();
         });

@@ -13,24 +13,83 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class sampahController extends Controller
 {
-    public function index()
+    public function addTahun(Request $request)
     {
-        $sampah = Sampah::with(['tps.parameter' => function ($query) {
-            $query->wherePivot('entity', 'sampah');
-        }])->get();
+        $request->validate([
+            'tahun' => 'required|numeric|digits:4',
+        ]);
 
-        $parameter = Parameter::all();
+        $tahunList = session('tahun_list', []);
 
-        $param_volume = Parameter::where('namaParameter', 'Volume Sampah')->first();
+        if (!in_array($request->tahun, $tahunList)) {
+            session()->push('tahun_list', $request->tahun);
+        }
 
-        return view('sampah.index', compact('sampah', 'parameter', 'param_volume'));
+        return redirect()->route('sampah');
     }
 
-    public function tambah()
+    public function removeTahun(Request $request)
     {
+        // Ambil tahun yang dipilih dari request
+        $tahun = $request->input('tahun');
+
+        // Pastikan tahun yang dipilih tidak kosong dan ada di session
+        if ($tahun && session()->has('tahun_list')) {
+            // Ambil daftar tahun yang ada di session
+            $tahunList = session('tahun_list');
+
+            // Jika tahun ditemukan, hapus dari array
+            if (($key = array_search($tahun, $tahunList)) !== false) {
+                unset($tahunList[$key]);
+                session()->put('tahun_list', array_values($tahunList));
+            }
+        }
+
+        // Redirect kembali ke halaman daftar sampah atau halaman yang diinginkan
+        return redirect()->route('sampah');
+    }
+
+    public function index(Request $request)
+    {
+        $tahunDatabase = Sampah::distinct()->pluck('tahun')->toArray();
+
+        // Ambil tahun dari session (jika ada)
+        $tahunSession = session('tahun_list', []);
+
+        // Gabungkan tahun dari database dan session, lalu hilangkan duplikasi
+        $tahunList = array_unique(array_merge($tahunDatabase, $tahunSession));
+
+        // Ambil filter tahun dan jumlah item per halaman
+        $tahun = $request->input('tahun');
+        $perPage = $request->input('per_page', 4);
+
+        $isDataAvailable = false;
+        if ($tahun) {
+            $isDataAvailable = Sampah::where('tahun', $tahun)->exists();
+        }
+
+        if ($tahun) {
+            $sampah = Sampah::where('tahun', $tahun)->paginate($perPage);
+        } else {
+            $sampah = Sampah::paginate($perPage);
+        }
+
+        // Pass data ke view
+        return view('sampah.index', compact('tahunList', 'sampah', 'tahun', 'isDataAvailable'));
+    }
+
+    public function tambah(Request $request)
+    {
+        // Ambil tahun dari request (dari URL)
+        $tahun = $request->input('tahun');
+
+        // Ambil data lainnya
         $tps = Tps::with('parameter')->get();
         $parameter = Parameter::all();
-        return view('sampah.form', compact('tps', 'parameter'));
+        $tahunList = Sampah::select('tahun')->distinct()->get();
+
+        // Pass data ke view, termasuk tahun yang dipilih
+        return view('sampah.form', compact('tps', 'parameter', 'tahunList', 'tahun'));
     }
 
     public function simpan(Request $request)
@@ -49,7 +108,6 @@ class sampahController extends Controller
 
         //mendapatkan parameter dari tabel parameter
         $param_volume = Parameter::where('namaParameter', 'Volume Sampah')->first();
-
         $tps = Tps::find($validatedData['tps_id']);
 
         if ($param_volume) {
@@ -155,15 +213,16 @@ class sampahController extends Controller
     //proses file import
     public function import(Request $request)
     {
+        $tahun = $request->input('tahun');
+
         $request->validate([
             'file' => 'required|mimes:xlsx,xls,csv|max:2048',
         ]);
+        // Import file
+        $import = new SampahImport($tahun); // Kirimkan tahun ke class import
 
-        //ambil file yg diupload
-        $file = $request->file('file');
+        Excel::import($import, $request->file('file'));
 
-        Excel::import(new SampahImport, $file);
-
-        return redirect()->route('sampah');
+        return redirect()->route('sampah')->with('success', 'Data berhasil diimpor!');
     }
 }

@@ -21,14 +21,16 @@
                             </div>
                             <div class="form-group mb-4">
                                 <label for="tahun" class="text-dark text-sm font-weight-medium">Tahun</label>
-                                <input type="number" class="form-control" id="tahun" name="tahun" min="2000"
-                                    max="2099" placeholder="Masukkan Tahun">
+                                <input type="number" class="form-control" id="tahun" name="tahun" min="2000" max="2099" 
+                                       placeholder="Masukkan Tahun" value="{{ old('tahun', $tahun) }}">
                             </div>
                             @foreach ($parameter as $param)
                                 @if ($param->namaParameter == 'Volume Sampah')
                                     <div class="form-group mb-4">
                                         <label for="volume_sampah_{{ $param->id }}"
-                                            class="text-dark text-sm font-weight-medium">{{ $param->namaParameter }}</label>
+                                            class="text-dark text-sm font-weight-medium">{{ $param->namaParameter }}
+                                            (Ton)
+                                        </label>
                                         <input type="number" name="volume_sampah[{{ $param->id }}]"
                                             id="volume_sampah[{{ $param->id }}]" class="form-control"
                                             placeholder="Masukkan Volume Sampah" step="any" required>

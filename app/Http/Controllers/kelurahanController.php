@@ -10,11 +10,25 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class kelurahanController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $kelurahan = Kelurahan::with('kecamatan')->get();
-        return view('kelurahan.index', compact('kelurahan'));
+        // Ambil semua data kecamatan untuk dropdown filter
+        $kecamatan = Kecamatan::all();
+
+        // Ambil nilai filter dan jumlah item per halaman dari query string
+        $selectedKecamatan = $request->input('kecamatan_id');
+        $perPage = $request->input('per_page', 4);
+
+        // Query data kelurahan dengan filtering dan pagination
+        $kelurahan = Kelurahan::with('kecamatan')
+            ->when($selectedKecamatan, function ($query) use ($selectedKecamatan) {
+                $query->where('kecamatan_id', $selectedKecamatan);
+            })
+            ->paginate($perPage); // Gunakan jumlah item per halaman dari input
+
+        return view('kelurahan.index', compact('kelurahan', 'kecamatan', 'selectedKecamatan', 'perPage'));
     }
+
 
     public function tambah()
     {
@@ -61,7 +75,8 @@ class kelurahanController extends Controller
         return redirect()->route('kelurahan');
     }
 
-    public function hapus($id) {
+    public function hapus($id)
+    {
         $kelurahan = Kelurahan::find($id);
 
         if ($kelurahan) {

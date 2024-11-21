@@ -32,7 +32,7 @@
                                     @if ($param->namaParameter == 'Jarak ke TPA')
                                         <div class="form-group mb-4">
                                             <label for="param{{ $param->id }}"
-                                                class="text-dark text-sm font-weight-medium">{{ $param->namaParameter }}</label>
+                                                class="text-dark text-sm font-weight-medium">{{ $param->namaParameter }} (Km)</label>
                                             <input type="hidden" name="params_id[]" value="{{ $param->id }}">
                                             {{-- Mengambil nilai_parameter dari hubungan pivot berdasarkan params_id --}}
                                             <input type="number" name="nilai_parameter[]" id="param{{ $param->id }}"

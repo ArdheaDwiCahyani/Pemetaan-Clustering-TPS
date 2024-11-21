@@ -8,14 +8,28 @@
             <div class="col-12">
                 <div class="card mb-4">
                     <div class="card-body ">
-                        <div class="d-flex justify-content-between mb-3">
-                            <div>
-                                <a href="{{ route('tps.tambah') }}" class="btn btn-outline-primary mb-3 mr-2"> Tambah Data
-                                </a>
-                            </div>
-                            <div>
-                                <a class="btn btn-warning bs-btn-active-bg mb-3" href="{{ route('tps.import') }}">Import Data</a>
-                                <a class="btn btn-primary bs-btn-active-bg mb-3" href="#">Export Data</a>
+                        <div class="d-flex justify-content-between align-items-end mb-3" style="gap: 15px;">
+                            <!-- Form Filter -->
+                            <form method="GET" action="{{ route('tps') }}" class="d-flex w-100" style="gap: 15px;"
+                                id="filterForm">
+                                <div class="d-flex flex-column" style="gap: 5px;">
+                                    <label for="per_page" class="form-label text-dark text-sm font-weight-medium mb-1">Item
+                                        per Halaman</label>
+                                    <select name="per_page" id="per_page" class="form-select"
+                                        style="width: 120px; height: 40px;" onchange="submitForm()">
+                                        <option value="4" {{ request('per_page') == 4 ? 'selected' : '' }}>4</option>
+                                        <option value="8" {{ request('per_page') == 8 ? 'selected' : '' }}>8</option>
+                                        <option value="24" {{ request('per_page') == 24 ? 'selected' : '' }}>24</option>
+                                        <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
+                                    </select>
+                                </div>
+                            </form>
+
+                            <!-- Tombol Aksi -->
+                            <div class="d-flex align-items-end" style="gap: 5px;">
+                                <a href="{{ route('tps.tambah') }}" class="btn btn-outline-primary">Tambah</a>
+                                <a href="{{ route('tps.import') }}" class="btn btn-warning">Import</a>
+                                <a class="btn btn-primary" href="#">Export</a>
                             </div>
                         </div>
                         <div class="table-responsive p-0">
@@ -32,7 +46,8 @@
                                         @foreach ($parameter as $row)
                                             @if ($row->namaParameter == 'Jarak ke TPA')
                                                 <th class="text-dark text-sm text-center font-weight-medium px-0">
-                                                    {{ $row->namaParameter }} <!-- Dinamis kolom untuk parameter -->
+                                                    {{ $row->namaParameter }} <br>(Km)
+                                                    <!-- Dinamis kolom untuk parameter -->
                                                 </th>
                                             @endif
                                         @endforeach
@@ -40,7 +55,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @php($no = 1)
+                                    @php($no = ($tps->currentPage() - 1) * $tps->perPage() + 1)
                                     @foreach ($tps as $index => $row)
                                         <tr>
                                             <td class="text-dark text-center align-middle text-sm">{{ $no++ }}</td>
@@ -67,9 +82,18 @@
                                     @endforeach
                                 </tbody>
                             </table>
+                            <div class="d-flex justify-content-center mt-4">
+                                {{ $tps->appends(request()->input())->links() }}
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <script>
+            function submitForm() {
+                document.getElementById('filterForm').submit();
+            }
+        </script>
     @endsection

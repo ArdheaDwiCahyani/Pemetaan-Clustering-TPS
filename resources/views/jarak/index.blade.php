@@ -8,14 +8,43 @@
             <div class="col-12">
                 <div class="card mb-0">
                     <div class="card-body">
-                        <div class="d-flex justify-content-between mb-3">
-                            <div>
-                                <a href="{{ route('jarak.tambah') }}" class="btn btn-outline-primary mb-3 mr-2"> Tambah Jarak
-                                </a>
-                            </div>
-                            <div>
-                                <a class="btn btn-warning bs-btn-active-bg mb-3" href="{{ route('jarak.import') }}">Import Data</a>
-                                <a class="btn btn-primary bs-btn-active-bg mb-3" href="#">Export Data</a>
+                        <div class="d-flex justify-content-between align-items-end mb-3" style="gap: 15px;">
+                            <form method="GET" action="{{ route('jarak') }}" class="d-flex w-100" style="gap: 15px;"
+                                id="filterForm">
+                                <div class="d-flex flex-column" style="gap: 5px;">
+                                    <label for="tps_asal" class="form-label text-dark text-sm font-weight-medium mb-1">Pilih
+                                        TPS Asal</label>
+                                    <select name="tps_asal" id="tps_asal" class="form-select"
+                                        style="width: 290px; height: 40px;" onchange="submitForm()">
+                                        <option value="">-- Semua TPS --</option>
+                                        @foreach ($tpsList as $tps)
+                                            <option value="{{ $tps->id }}"
+                                                {{ $tpsAsalId == $tps->id ? 'selected' : '' }}>
+                                                {{ $tps->namaTPS }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <!-- Dropdown Item per Halaman -->
+                                <div class="d-flex flex-column" style="gap: 5px;">
+                                    <label for="per_page" class="form-label text-dark text-sm font-weight-medium mb-1">Item
+                                        per Halaman</label>
+                                    <select name="per_page" id="per_page" class="form-select"
+                                        style="width: 120px; height: 40px;" onchange="submitForm()">
+                                        <option value="4" {{ request('per_page') == 4 ? 'selected' : '' }}>4</option>
+                                        <option value="8" {{ request('per_page') == 8 ? 'selected' : '' }}>8</option>
+                                        <option value="24" {{ request('per_page') == 24 ? 'selected' : '' }}>24</option>
+                                        <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50
+                                        </option>
+                                    </select>
+                                </div>
+                            </form>
+
+                            <!-- Tombol Aksi -->
+                            <div class="d-flex align-items-end" style="gap: 5px;">
+                                <a href="{{ route('jarak.tambah') }}" class="btn btn-outline-primary">Tambah</a>
+                                <a href="{{ route('jarak.import') }}" class="btn btn-warning">Import</a>
+                                <a class="btn btn-primary" href="#">Export</a>
                             </div>
                         </div>
                         <div class="table-responsive p-0">
@@ -56,9 +85,19 @@
                                     @endforeach
                                 </tbody>
                             </table>
+                            <div class="d-flex justify-content-center mt-4">
+                                {{ $jarak->appends(request()->input())->links() }}
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <script>
+            function submitForm() {
+                document.getElementById('filterForm').submit();
+            }
+        </script>
+
     @endsection
