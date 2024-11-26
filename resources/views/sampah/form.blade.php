@@ -3,40 +3,56 @@
 @section('title', 'Form Tambah Data')
 
 @section('content')
-    <form action="{{ route('sampah.tambah.simpan') }} " method="post">
+    <form action="{{ route('sampah.tambah.simpan') }}" method="post" id="myForm">
         @csrf
         <div class="container-fluid py-4">
             <div class="row">
                 <div class="col-12">
                     <div class="card shadow mb-0">
                         <div class="card-body2 mb-0">
+                            <!-- Pilih TPS -->
                             <div class="form-group mb-4">
                                 <label for="tps_id" class="text-dark text-sm font-weight-medium">Nama TPS</label>
-                                <select name="tps_id" id="tps_id" class="form-control" required>
-                                    <option value="" disabled selected>--- Pilih TPS ---</option>
+                                <select name="tps_id" id="tps_id" class="form-control choices-single">
+                                    <option value="" disabled selected>-- Pilih TPS --</option>
                                     @foreach ($tps as $row)
                                         <option value="{{ $row->id }}">{{ $row->namaTPS }}</option>
                                     @endforeach
                                 </select>
+                                <small id="errorNamaTPS" class="text-danger" style="display: none; margin-top: -20px;">
+                                    Kolom tidak boleh kosong!
+                                </small>
                             </div>
+
+                            <!-- Tahun -->
                             <div class="form-group mb-4">
                                 <label for="tahun" class="text-dark text-sm font-weight-medium">Tahun</label>
-                                <input type="number" class="form-control" id="tahun" name="tahun" min="2000" max="2099" 
-                                       placeholder="Masukkan Tahun" value="{{ old('tahun', $tahun) }}">
+                                <input type="number" class="form-control" id="tahun" name="tahun"
+                                    value="{{ old('tahun', $tahun) }}" readonly>
+                                <small id="errorTahun" class="text-danger" style="display: none;">
+                                    Kolom tidak boleh kosong!
+                                </small>
                             </div>
-                            @foreach ($parameter as $param)
-                                @if ($param->namaParameter == 'Volume Sampah')
-                                    <div class="form-group mb-4">
-                                        <label for="volume_sampah_{{ $param->id }}"
-                                            class="text-dark text-sm font-weight-medium">{{ $param->namaParameter }}
-                                            (Ton)
-                                        </label>
-                                        <input type="number" name="volume_sampah[{{ $param->id }}]"
-                                            id="volume_sampah[{{ $param->id }}]" class="form-control"
-                                            placeholder="Masukkan Volume Sampah" step="any" required>
-                                    </div>
-                                @endif
-                            @endforeach
+
+                            <!-- Parameter Volume Sampah -->
+                            <div class="form-group mb-0">
+                                @foreach ($parameter as $param)
+                                    @if ($param->namaParameter == 'Volume Sampah')
+                                        <div class="form-group mb-4">
+                                            <label for="volume_sampah_{{ $param->id }}"
+                                                class="text-dark text-sm font-weight-medium">{{ $param->namaParameter }}
+                                                (Ton)</label>
+                                            <input type="number" name="volume_sampah[{{ $param->id }}]"
+                                                id="volume_sampah_{{ $param->id }}" class="form-control"
+                                                placeholder="Masukkan Volume Sampah" step="any">
+                                            <small id="errorVolume_{{ $param->id }}" class="text-danger"
+                                                style="display: none;">
+                                                Kolom tidak boleh kosong atau kurang dari 0!
+                                            </small>
+                                        </div>
+                                    @endif
+                                @endforeach
+                            </div>
                         </div>
                         <div class="card-footer mt-0">
                             <button type="submit" class="btn btn-primary bs-btn-active-bg">Simpan</button>
@@ -46,4 +62,66 @@
             </div>
         </div>
     </form>
+
+    <script>
+        document.getElementById("myForm").addEventListener("submit", function(event) {
+            let isFormValid = true;
+
+            // Validasi TPS
+            const tps = document.getElementById("tps_id");
+            const errorNamaTPS = document.getElementById("errorNamaTPS");
+            if (!tps.value) {
+                errorNamaTPS.style.display = "block";
+                isFormValid = false;
+            } else {
+                errorNamaTPS.style.display = "none";
+            }
+
+            // Validasi Tahun
+            const tahun = document.getElementById("tahun");
+            const errorTahun = document.getElementById("errorTahun");
+            if (!tahun.value || tahun.value.trim() === "") {
+                errorTahun.style.display = "block";
+                isFormValid = false;
+            } else {
+                errorTahun.style.display = "none";
+            }
+
+            // Validasi Volume Sampah
+            const volumeInputs = document.querySelectorAll("input[name^='volume_sampah']");
+            volumeInputs.forEach((input) => {
+                const errorElement = document.getElementById(`errorVolume_${input.id.split('_')[2]}`);
+                const value = parseFloat(input.value);
+                if (isNaN(value) || value < 0) {
+                    errorElement.style.display = "block";
+                    isFormValid = false;
+                } else {
+                    errorElement.style.display = "none";
+                }
+            });
+
+            // Cegah submit jika tidak valid
+            if (!isFormValid) {
+                event.preventDefault();
+            }
+        });
+
+        // Event Listener untuk sembunyikan error saat input berubah
+        document.getElementById("tps_id").addEventListener("change", function() {
+            document.getElementById("errorNamaTPS").style.display = "none";
+        });
+
+        const tahunInput = document.getElementById("tahun");
+        tahunInput.addEventListener("input", function() {
+            document.getElementById("errorTahun").style.display = "none";
+        });
+
+        const volumeInputs = document.querySelectorAll("input[name^='volume_sampah']");
+        volumeInputs.forEach((input) => {
+            input.addEventListener("input", function() {
+                const errorElement = document.getElementById(`errorVolume_${input.id.split('_')[2]}`);
+                errorElement.style.display = "none";
+            });
+        });
+    </script>
 @endsection

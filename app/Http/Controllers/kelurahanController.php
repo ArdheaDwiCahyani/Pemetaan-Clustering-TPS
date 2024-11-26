@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\KelurahanExport;
 use App\Imports\KelurahanImport;
 use App\Models\Kelurahan;
 use App\Models\Kecamatan;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 use Maatwebsite\Excel\Facades\Excel;
 
 class kelurahanController extends Controller
@@ -29,10 +31,32 @@ class kelurahanController extends Controller
         return view('kelurahan.index', compact('kelurahan', 'kecamatan', 'selectedKecamatan', 'perPage'));
     }
 
+    public function handleSearch(Request $request)
+    {
+        // Ambil nilai input dari form
+        $search = $request->input('searchInput');
+
+        $columns = Schema::getColumnListing('kelurahan');
+
+        // Mulai query pencarian
+        $query = Kelurahan::query();
+
+        // Tambahkan kondisi pencarian untuk setiap kolom
+        foreach ($columns as $column) {
+            $query->orWhere($column, 'LIKE', '%' . $search . '%');
+        }
+
+        // Eksekusi query dan dapatkan hasil
+        $results = $query->get();
+
+        // Kembalikan data ke view
+        return response()->json(compact('results', 'search'));
+    }
+
 
     public function tambah()
     {
-        $kecamatan = Kecamatan::get();
+        $kecamatan = Kecamatan::where('namaKecamatan', '!=', '-- Pilih Kecamatan --')->get();
         return view('kelurahan.form', compact('kecamatan'));
     }
 
@@ -102,9 +126,13 @@ class kelurahanController extends Controller
 
         //ambil file yg diupload
         $file = $request->file('file');
-
         Excel::import(new KelurahanImport, $file);
 
         return redirect()->route('kelurahan');
+    }
+
+    public function export()
+    {
+        return Excel::download(new KelurahanExport, 'data-kelurahan.xlsx');
     }
 }

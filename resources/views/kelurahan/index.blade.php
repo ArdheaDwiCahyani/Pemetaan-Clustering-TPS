@@ -12,11 +12,11 @@
                             <form method="GET" action="{{ route('kelurahan') }}" class="d-flex w-100" style="gap: 15px;"
                                 id="filterForm">
                                 <!-- Dropdown Kecamatan -->
-                                <div class="d-flex flex-column" style="gap: 5px;">
+                                <div class="d-flex flex-column" style="gap: 5px; width: 40%;">
                                     <label for="kecamatan"
                                         class="form-label text-dark text-sm font-weight-medium mb-1">Pilih Kecamatan</label>
-                                    <select name="kecamatan_id" id="kecamatan" class="form-select"
-                                        style="width: 220px; height: 40px;" onchange="submitForm()">
+                                    <select name="kecamatan_id" id="kecamatan" class="form-control choices-single"
+                                        onchange="submitForm()">
                                         <option value="">-- Semua Kecamatan --</option>
                                         @foreach ($kecamatan as $kec)
                                             <option value="{{ $kec->id }}"
@@ -30,8 +30,7 @@
                                 <div class="d-flex flex-column" style="gap: 5px;">
                                     <label for="per_page" class="form-label text-dark text-sm font-weight-medium mb-1">Item
                                         per Halaman</label>
-                                    <select name="per_page" id="per_page" class="form-select"
-                                        style="width: 120px; height: 40px;" onchange="submitForm()">
+                                    <select name="per_page" id="per_page" class="choices-single" onchange="submitForm()">
                                         <option value="4" {{ request('per_page') == 4 ? 'selected' : '' }}>4</option>
                                         <option value="8" {{ request('per_page') == 8 ? 'selected' : '' }}>8</option>
                                         <option value="24" {{ request('per_page') == 24 ? 'selected' : '' }}>24</option>
@@ -44,12 +43,12 @@
                             <div class="d-flex align-items-end" style="gap: 5px;">
                                 <a href="{{ route('kelurahan.tambah') }}" class="btn btn-outline-primary">Tambah</a>
                                 <a href="{{ route('kelurahan.import') }}" class="btn btn-warning">Import</a>
-                                <a class="btn btn-primary" href="#">Export</a>
+                                <a class="btn btn-primary" href="{{ route('kelurahan.export') }}">Export</a>
                             </div>
                         </div>
                         <!-- Tabel Data Kelurahan -->
                         <div class="table-responsive p-0">
-                            <table class="table table align-items-center mb-0 " cellspacing="0">
+                            <table class="table table align-items-center mb-0" data-type="kelurahan" id="dataTable" cellspacing="0">
                                 <thead>
                                     <tr>
                                         <th style="width: 150px;"
@@ -63,7 +62,7 @@
                                         </th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody id="table-body">
                                     @php($no = ($kelurahan->currentPage() - 1) * $kelurahan->perPage() + 1)
                                     @foreach ($kelurahan as $row)
                                         <tr>

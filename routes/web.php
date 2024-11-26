@@ -9,6 +9,7 @@ use App\Http\Controllers\kelurahanController;
 use App\Http\Controllers\parameterController;
 use App\Http\Controllers\prosesClustering;
 use App\Http\Controllers\prosesController;
+use App\Http\Controllers\SearchController;
 use App\Http\Controllers\tpsController;
 use App\Http\Controllers\userController;
 use Illuminate\Support\Facades\Route;
@@ -56,6 +57,8 @@ Route::middleware(['first.visit'])->group(function () {
         Route::delete('id/{id}', 'hapus')->name('kelurahan.hapus');
         Route::get('import', 'importForm')->name('kelurahan.import');
         Route::post('import', 'import')->name('kelurahan.import.simpan');
+        Route::get('export', 'export')->name('kelurahan.export');
+        // Route::get('search', 'handleSearch')->name('kelurahan.search');
     });
     
     Route::controller(tpsController::class)->prefix('tps')->group(function() {
@@ -67,6 +70,7 @@ Route::middleware(['first.visit'])->group(function () {
         Route::delete('id/{id}', 'hapus')->name('tps.hapus');
         Route::get('import', 'importForm')->name('tps.import');
         Route::post('import', 'import')->name('tps.import.simpan');
+        Route::get('export', 'export')->name('tps.export');
     });
     
     Route::controller(jarakController::class)->prefix('jarak')->group(function() {
@@ -78,6 +82,7 @@ Route::middleware(['first.visit'])->group(function () {
         Route::delete('id/{id}', 'hapus')->name('jarak.hapus');
         Route::get('import', 'importForm')->name('jarak.import');
         Route::post('import', 'import')->name('jarak.import.simpan');
+        Route::get('export', 'export')->name('jarak.export');
     });
     
     Route::controller(sampahController::class)->prefix('sampah')->group(function() {
@@ -91,6 +96,7 @@ Route::middleware(['first.visit'])->group(function () {
         Route::delete('id/{id}', 'hapus')->name('sampah.hapus');
         Route::get('import', 'importForm')->name('sampah.import');
         Route::post('import', 'import')->name('sampah.import.simpan');
+        Route::get('export', 'export')->name('sampah.export');
     });
     
     Route::controller(parameterController::class)->prefix('parameter')->group(function() {
@@ -107,7 +113,10 @@ Route::middleware(['first.visit'])->group(function () {
         Route::post('/', 'showProses')->name('proses.cluster');
         Route::get('/geojson/{tahun}', 'geojsonData')->name('proses.geojson');
         Route::get('/map/{tahun}', 'showMap')->name('proses.map');
+        Route::get('export/{tahun}', 'exportCluster')->name('hasil.export');
     });
+
+    Route::get('/search', [SearchController::class, 'search'])->name('search');
 
 });
 

@@ -12,8 +12,8 @@
                         <div class="card-body2 mb-0">
                             <div class="form-group mb-4">
                                 <label for="tps_id" class="text-dark text-sm font-weight-medium">Nama TPS</label>
-                                <select name="tps_id" id="tps_id" class="form-control" required>
-                                    <option value="" disabled selected>--- Pilih TPS ---</option>
+                                <select name="tps_id" id="tps_id" class="form-control choices-single" required>
+                                    <option value="" disabled selected>-- Pilih TPS --</option>
                                     @foreach ($tps as $row)
                                         <option value="{{ $row->id }}"
                                             {{ $row->id == $sampah->tps_id ? 'selected' : '' }}>

@@ -10,12 +10,6 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
 class KelurahanImport implements ToModel, WithHeadingRow, SkipsEmptyRows
 {
-    /**
-     * Map each row in the spreadsheet to the Kelurahan model.
-     *
-     * @param array $row
-     * @return \Illuminate\Database\Eloquent\Model|null
-     */
     public function model(array $row)
     {
         // Mencari ID kecamatan berdasarkan nama kecamatan yang diinput di Excel

@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\JarakExport;
 use App\Imports\JarakImport;
 use App\Models\Jarak;
 use App\Models\Tps;
 use Illuminate\Auth\Events\Validated;
 use Illuminate\Contracts\Support\ValidatedData;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 
 class jarakController extends Controller
@@ -27,7 +29,6 @@ class jarakController extends Controller
 
         return view('jarak.index', compact('jarak', 'tpsList', 'tpsAsalId'));
     }
-
 
     public function tambah()
     {
@@ -104,11 +105,16 @@ class jarakController extends Controller
             'file' => 'required|mimes:xlsx,xls,csv|max:2048',
         ]);
 
-        //ambil file yg diupload
         $file = $request->file('file');
 
-        Excel::import(new JarakImport, $file);
+        $import = new JarakImport();
+        Excel::import($import, $file);
 
         return redirect()->route('jarak');
+    }
+
+    public function export()
+    {
+        return Excel::download(new JarakExport, 'data-jarak-antar-TPS.xlsx');
     }
 }

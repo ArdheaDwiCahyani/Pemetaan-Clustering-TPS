@@ -15,8 +15,8 @@
                                 <div class="d-flex flex-column" style="gap: 5px;">
                                     <label for="per_page" class="form-label text-dark text-sm font-weight-medium mb-1">Item
                                         per Halaman</label>
-                                    <select name="per_page" id="per_page" class="form-select"
-                                        style="width: 120px; height: 40px;" onchange="submitForm()">
+                                        <select name="per_page" id="per_page" class="choices-single"
+                                         onchange="submitForm()">
                                         <option value="4" {{ request('per_page') == 4 ? 'selected' : '' }}>4</option>
                                         <option value="8" {{ request('per_page') == 8 ? 'selected' : '' }}>8</option>
                                         <option value="24" {{ request('per_page') == 24 ? 'selected' : '' }}>24</option>
@@ -29,11 +29,11 @@
                             <div class="d-flex align-items-end" style="gap: 5px;">
                                 <a href="{{ route('tps.tambah') }}" class="btn btn-outline-primary">Tambah</a>
                                 <a href="{{ route('tps.import') }}" class="btn btn-warning">Import</a>
-                                <a class="btn btn-primary" href="#">Export</a>
+                                <a class="btn btn-primary" href="{{ route('tps.export') }}">Export</a>
                             </div>
                         </div>
                         <div class="table-responsive p-0">
-                            <table class="table table align-items-center mb-0 " cellspacing="0">
+                            <table class="table table align-items-center mb-0 " cellspacing="0" id="dataTable" data-type="tps">
                                 <thead>
                                     <tr>
                                         <th style="width: 120px;" class="text-dark text-center text-sm font-weight-medium">
@@ -54,7 +54,7 @@
                                         <th class="text-center text-dark text-sm font-weight-medium">Aksi</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody id="table-body">
                                     @php($no = ($tps->currentPage() - 1) * $tps->perPage() + 1)
                                     @foreach ($tps as $index => $row)
                                         <tr>

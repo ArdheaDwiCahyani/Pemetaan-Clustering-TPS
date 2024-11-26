@@ -35,12 +35,12 @@ class SampahImport implements ToCollection, WithHeadingRow
         // Proses setiap baris data dari Excel
         foreach ($rows as $row) {
             // Ambil data dari kolom Excel
-            $namaTps = $row['nama_tps'];        // Kolom 'nama_tps'
-            $tahun = $this->tahun;              // Menggunakan tahun yang diteruskan dari konstruktor
-            $nilaiVolume = $row['volume_sampah']; // Kolom 'volume_sampah'
+            $namaTps = strtolower(trim(str_replace(' ', '', $row['nama_tps'])));        // Kolom 'nama_tps'
+            $tahun = $this->tahun;              
+            $nilaiVolume = $row['volume_sampah'];
 
             // Cari TPS berdasarkan nama_tps
-            $tps = Tps::where('namaTPS', $namaTps)->first();
+            $tps = Tps::whereRaw('LOWER(REPLACE(namaTPS, " ", "")) = ?', [$namaTps])->first();
 
             if ($tps) {
                 // Buat data baru di tabel 'sampah' dengan menggunakan 'tahun' yang diteruskan

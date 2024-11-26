@@ -42,6 +42,7 @@
         crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.1/font/bootstrap-icons.css">
     {{-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"> --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js@9.0.1/public/assets/styles/choices.min.css" />
     <style>
         #subMenu {
             display: none;
@@ -70,6 +71,7 @@
     <script src="../assets/js/plugins/perfect-scrollbar.min.js"></script>
     <script src="../assets/js/plugins/smooth-scrollbar.min.js"></script>
     <script src="../assets/js/plugins/chartjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/choices.js@9.0.1/public/assets/scripts/choices.min.js"></script>
     <script>
         var ctx1 = document.getElementById("chart-line").getContext("2d");
 
@@ -223,6 +225,20 @@
         }
     </style>
 
+    <!-- choices dropdown -->
+    <script>
+        $(document).ready(function() {
+            document.querySelectorAll('.choices-single').forEach(function(element) {
+                // Inisialisasi Choices.js untuk setiap elemen
+                new Choices(element, {
+                    searchEnabled: true, // Aktifkan pencarian
+                    shouldSort: false, // Jangan urutkan pilihan secara otomatis
+                    itemSelectText: '', // Kosongkan teks "Press to select" (opsional)
+                });
+            });
+        })
+    </script>
+
     <script>
         $(document).ready(function() {
             let submenuOpen = false; // Status submenu
@@ -256,6 +272,241 @@
             });
         });
     </script>
+
+    {{-- fitur search --}}
+    <script>
+        $('#globalSearchInput').on('keyup', function() {
+            var query = $(this).val();
+            var type = $('#dataTable').data('type'); // Misalnya, jenis pencarian saat ini adalah kelurahan
+            // console.log(type);
+
+            $.ajax({
+                url: '{{ route('search') }}',
+                method: 'GET',
+                data: {
+                    query: query,
+                    type: type // Kirimkan tipe pencarian
+                },
+                success: function(response) {
+                    var tableBody = $('#table-body');
+                    tableBody.empty();
+
+                    if (response.results.length > 0) {
+                        // var no = 1;
+                        response.results.forEach(function(item, index) {
+                            var row = ''
+                            if (type == 'kelurahan') {
+                                var row = `
+                                            <tr>
+                                                <td class="text-dark text-center align-middle text-sm">${index + 1}</td>
+                                                        <td class="text-dark align-middle text-sm px-5">${item.namaKelurahan}</td>
+                                                        <td class="text-dark align-middle text-sm px-5">${item.kecamatan ? item.kecamatan.namaKecamatan : ''}</td>
+                                                        <td class="text-center align-middle text-center icon-lg px-0">
+                                                            <a href="/kelurahan/edit/${item.id}">
+                                                                <i class="fa-solid fa-edit btn-outline-success"
+                                                                style="margin-right: 5px;"></i>
+                                                            </a>
+                                                            <a href="/kelurahan/hapus/${item.id}" id="delete">
+                                                                <i class="fa-solid fa-trash btn-outline-danger"></i>
+                                                            </a>
+                                                        </td>
+                                            </tr>`;
+                            } else if (type == 'kecamatan') {
+                                row = `
+                                        <tr>
+                                            <td class="text-dark text-center align-middle text-sm">${index + 1}</td>
+                                            <td class="text-dark align-middle text-sm px-6">${item.namaKecamatan}</td>
+                                            <td class="text-center align-middle text-center icon-lg px-0">
+                                                <a href="/kecamatan/edit/${item.id}">
+                                                    <i class="fa-solid fa-edit btn-outline-success"
+                                                    style="margin-right: 5px;"></i>
+                                                </a>
+                                                <a href="/kecamatan/hapus/${item.id}" id="delete">
+                                                    <i class="fa-solid fa-trash btn-outline-danger"></i>
+                                                </a>
+                                            </td>
+                                        </tr>`;
+
+                            } else if (type == 'tps') {
+                                row = `
+                                    <tr>
+                                            <td class="text-dark text-center align-middle text-sm">${index + 1}</td>
+                                            <td style="width: 200px;" class="text-dark align-middle text-sm text-wrap px-2">${item.namaTPS}</td>
+                                            <td class="text-dark align-middle text-sm px-0">${item.kelurahan}</td>
+                                            <td class="text-dark text-center align-middle text-sm">${item.jarak}</td>
+                                            <td class="text-center align-middle text-center icon-lg px-0">
+                                                <a href="/kecamatan/edit/${item.id}">
+                                                    <i class="fa-solid fa-edit btn-outline-success"
+                                                    style="margin-right: 5px;"></i>
+                                                </a>
+                                                <a href="/kecamatan/hapus/${item.id}" id="delete">
+                                                    <i class="fa-solid fa-trash btn-outline-danger"></i>
+                                                </a>
+                                            </td>
+                                        </tr>`;
+
+                            } else if (type == 'jarak') {
+                                row = `
+                                        <tr>
+                                            <td class="text-dark text-center align-middle text-sm">${index + 1}</td>
+                                            <td style="width: 200px;" class="text-dark align-middle text-sm text-wrap px-2">${item.tpsAsal}</td>
+                                            <td class="text-dark align-middle text-sm px-0">${item.tpsTujuan}</td>
+                                            <td class="text-dark text-center align-middle text-sm">${item.jarak}</td>
+                                            <td class="text-center align-middle text-center icon-lg px-0">
+                                                <a href="/kecamatan/edit/${item.id}">
+                                                    <i class="fa-solid fa-edit btn-outline-success"
+                                                    style="margin-right: 5px;"></i>
+                                                </a>
+                                                <a href="/kecamatan/hapus/${item.id}" id="delete">
+                                                    <i class="fa-solid fa-trash btn-outline-danger"></i>
+                                                </a>
+                                            </td>
+                                        </tr>`;
+                            } else if (type == 'sampah') {
+                                row = `
+                                        <tr>
+                                            <td class="text-dark text-center align-middle text-sm">${index + 1}</td>
+                                            <td style="width: 200px;" class="text-dark align-middle text-sm text-wrap px-2">${item.namaTPS}</td>
+                                            <td class="text-dark align-middle text-sm px-0">${item.tahun}</td>
+                                            <td class="text-dark text-center align-middle text-sm">${item.volume}</td>
+                                            <td class="text-dark text-center align-middle text-sm">${item.jarakTPA}</td>
+                                            <td class="text-dark text-center align-middle text-sm">${item.rataRataJarak}</td>
+                                            <td class="text-center align-middle text-center icon-lg px-0">
+                                                <a href="/kecamatan/edit/${item.id}">
+                                                    <i class="fa-solid fa-edit btn-outline-success"
+                                                    style="margin-right: 5px;"></i>
+                                                </a>
+                                                <a href="/kecamatan/hapus/${item.id}" id="delete">
+                                                    <i class="fa-solid fa-trash btn-outline-danger"></i>
+                                                </a>
+                                            </td>
+                                        </tr>`;
+                            }
+
+                            tableBody.append(row);
+                        });
+                    } else {
+                        tableBody.append('<tr><td colspan="3">Tidak ada data ditemukan</td></tr>');
+                    }
+                },
+                error: function(error) {
+                    console.error('Error:', error);
+                }
+            });
+        });
+    </script>
+    {{-- <script>
+        $(document).ready(function() {
+            var type = $('#dataTable').data('type');
+            // console.log(type); 
+
+            $('#globalSearchInput').on('keyup', function() {
+                var query = $(this).val(); // Ambil nilai input pencarian
+
+                // Kirim permintaan AJAX untuk pencarian
+                $.ajax({
+                    url: '/search', // URL untuk melakukan pencarian
+                    method: 'GET;',
+                    data: {
+                        query: query,
+                        type: type, // Gunakan type yang sudah diambil dari data-type
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        var tableBody = $('#table-body');
+                        tableBody.empty(); // Bersihkan tabel
+
+                        if (response.results.length > 0) {
+                            // Jika data ditemukan, tampilkan di tabel
+                            response.results.forEach(function(item, index) {
+                                var row = '';
+
+                                var type = item.type;
+
+                                switch (type) {
+                                    case 'kecamatan':
+                                        row = `
+                                <tr>
+                                    <td class="text-dark text-center align-middle text-sm">${index + 1}</td>
+                                    <td class="text-dark align-middle text-sm px-5">${item.namaKecamatan}</td>
+                                    <td class="text-center align-middle text-center icon-lg px-0">
+                                        <a href="/kecamatan/edit/${item.id}">
+                                            <i class="fa-solid fa-edit btn-outline-success"
+                                            style="margin-right: 5px;"></i>
+                                        </a>
+                                        <a href="/kecamatan/hapus/${item.id}" id="delete">
+                                            <i class="fa-solid fa-trash btn-outline-danger"></i>
+                                        </a>
+                                    </td>
+                                </tr>`;
+                                        break;
+
+                                    case 'kelurahan':
+                                        row = `
+                                <tr>
+                                    <td class="text-dark text-center align-middle text-sm">${index + 1}</td>
+                                    <td class="text-dark align-middle text-sm px-5">${item.namaKelurahan}</td>
+                                    <td class="text-dark align-middle text-sm px-5">${item.kecamatan ? item.kecamatan.namaKecamatan : ''}</td>
+                                    <td class="text-center align-middle text-center icon-lg px-0">
+                                        <a href="/kelurahan/edit/${item.id}">
+                                            <i class="fa-solid fa-edit btn-outline-success"
+                                            style="margin-right: 5px;"></i>
+                                        </a>
+                                        <a href="/kelurahan/hapus/${item.id}" id="delete">
+                                            <i class="fa-solid fa-trash btn-outline-danger"></i>
+                                        </a>
+                                    </td>
+                                </tr>`;
+                                        break;
+
+                                    default:
+                                        row = `
+                                <tr>
+                                    <td colspan="4">Data tidak ditemukan untuk tipe ini.</td>
+                                </tr>`;
+                                }
+
+                                tableBody.append(row);
+                            });
+                        } else {
+                            // Jika tidak ada data ditemukan
+                            tableBody.append(
+                                '<tr><td colspan="3">Tidak ada data ditemukan</td></tr>');
+                        }
+                    },
+                    error: function() {
+                        console.error('Terjadi kesalahan dalam pencarian');
+                    }
+                });
+            });
+        });
+    </script> --}}
+
+
+    {{-- <script>
+        $(document).ready(function() {
+            // Event keyup untuk input pencarian global
+            $('#globalSearchInput').on('keyup', function() {
+                var value = $(this).val().toLowerCase();
+
+                // Loop melalui semua tabel dalam konten
+                $('table').each(function() {
+                    $(this).find('tbody tr').filter(function() {
+                        $(this).toggle($(this).text().toLowerCase().indexOf(
+                            value) > -1)
+                    });
+                });
+            });
+            // $('#searchInput').on('keyup', function() {
+            //     var value = $(this).val().toLowerCase(); // Ambil input pengguna dan ubah ke huruf kecil
+            //     $('#dataTable tbody tr').filter(function() {
+            //         $(this).toggle($(this).text().toLowerCase().indexOf(value) > -
+            //             1); // Sembunyikan baris yang tidak cocok
+            //     });
+            // });
+        });
+    </script> --}}
+
 
     <!-- Argon Dashboard Scripts -->
     <script src="{{ asset('argon-dashboard/js/argon-dashboard.min.js') }}"></script>

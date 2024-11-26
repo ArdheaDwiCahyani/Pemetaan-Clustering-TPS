@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\SampahExport;
 use App\Imports\SampahImport;
 use App\Models\Parameter;
 use App\Models\Sampah;
@@ -224,5 +225,12 @@ class sampahController extends Controller
         Excel::import($import, $request->file('file'));
 
         return redirect()->route('sampah')->with('success', 'Data berhasil diimpor!');
+    }
+
+    public function export(Request $request)
+    {
+        $tahun = $request->input('tahun');
+
+        return Excel::download(new SampahExport($tahun), 'data-sampah-' . $tahun . '.xlsx');
     }
 }

@@ -24,20 +24,20 @@
                                     class="btn btn-outline-primary mb-3 ms-1">Tambah</a>
                                 <a class="btn btn-warning bs-btn-active-bg mb-3 ms-1"
                                     href="{{ route('sampah.import', ['tahun' => request('tahun')]) }}">Import</a>
-                                <a class="btn btn-primary bs-btn-active-bg mb-3 ms-1" href="#">Export</a>
+                                <a class="btn btn-primary bs-btn-active-bg mb-3 ms-1" href="{{ route('sampah.export', ['tahun' => request('tahun')]) }}">Export</a>
                             </div>
                         </div>
 
                         <div class="d-flex flex-column mb-3">
                             <div class="d-flex flex-column flex-sm-row mb-2">
-                                <div class="me-sm-2 mb-2 mb-sm-0">
+                                <div class="me-sm-2 mb-2 mb-sm-0" style="width: 21%">
                                     <form action="{{ route('sampah') }}" method="GET" id="formTahun" class="ml-sm-3">
                                         <div class="form-group">
                                             <label for="tahun"
                                                 class="form-label text-dark text-sm font-weight-medium mb-2">Pilih
                                                 Tahun</label>
-                                            <select name="tahun" id="tahun" class="form-select" required
-                                                onchange="autoSubmit()" style="width: 150px">
+                                            <select name="tahun" id="tahun" class="form-select choices-single" required
+                                                onchange="autoSubmit()">
                                                 <option value="">Semua Tahun</option>
                                                 @foreach ($tahunList as $tahun)
                                                     <option value="{{ $tahun }}"
@@ -55,7 +55,7 @@
                                             <label for="per_page"
                                                 class="form-label text-dark text-sm font-weight-medium mb-2">Item per
                                                 Halaman</label>
-                                            <select name="per_page" id="per_page" class="form-select" style="width: 120px;"
+                                            <select name="per_page" id="per_page" class="form-select choices-single" 
                                                 onchange="submitForm()">
                                                 <option value="4" {{ request('per_page') == 4 ? 'selected' : '' }}>4
                                                 </option>
@@ -88,7 +88,7 @@
 
                         <!-- Tabel Data Sampah -->
                         <div class="table-responsive p-0">
-                            <table class="table table align-items-center mb-0" cellspacing="0">
+                            <table class="table table align-items-center mb-0" cellspacing="0" id="dataTable" data-type="sampah">
                                 <thead>
                                     <tr>
                                         <th style="width: 70px" class="text-dark text-center text-sm font-weight-medium">No
@@ -109,7 +109,7 @@
                                             class="text-center text-dark text-sm font-weight-medium px-0">Aksi</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody id="table-body">
                                     @php($no = ($sampah->currentPage() - 1) * $sampah->perPage() + 1)
                                     @foreach ($sampah as $row)
                                         <tr>

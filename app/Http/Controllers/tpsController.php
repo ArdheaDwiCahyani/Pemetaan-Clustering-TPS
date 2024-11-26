@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\TpsExport;
 use App\Imports\TpsImport;
 use App\Models\Kelurahan;
 use App\Models\Parameter;
@@ -170,5 +171,10 @@ class tpsController extends Controller
         Excel::import(new TpsImport, $file);
 
         return redirect()->route('tps');
+    }
+
+    public function export()
+    {
+        return Excel::download(new TpsExport, 'data-TPS.xlsx');
     }
 }

@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\ClusterExport;
 use App\Models\Sampah;
 use App\Models\Tps;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ProsesController extends Controller
 {
@@ -27,8 +29,13 @@ class ProsesController extends Controller
         if ($selectedYear && in_array($selectedYear, $tahun)) {
             // Jika tahun valid dan dipilih
             $groupedByCluster = $this->performClustering($selectedYear);
+
+            session(['groupedByCluster' => $groupedByCluster]);
+            session()->put('hasil_clustering', 'true');
+            session()->put('tahun_clustering', $selectedYear);
+        } else {
+            session()->forget(['hasil_clustering', 'tahun_clustering']);
         }
-        
 
         return view('proses.index', compact('tahun', 'selectedYear', 'groupedByCluster'));
     }
@@ -153,6 +160,9 @@ class ProsesController extends Controller
             }
         }
 
+        $silhouetteScore = $this->calculateSilhouetteScore($result['clusters'], $formattedData);
+        Log::info('Silhouette Score:', ['score' => $silhouetteScore]);
+
         $groupedByCluster = collect($normalizedData)->groupBy('cluster')->sortKeys();
         // dd($groupedByCluster);
 
@@ -178,7 +188,7 @@ class ProsesController extends Controller
             'centroid' => $data[9]
         ]);
 
-        // Memilih centroid yang tersisa menggunakan K-Means++
+        mt_srand(170503);
         // Pilih centroid yang tersisa menggunakan K-Means++
         while (count($centroids) < $k) {
             // Menghitung D(x)^2 untuk setiap titik data
@@ -253,6 +263,45 @@ class ProsesController extends Controller
         return sqrt(array_sum(array_map(fn($a, $b) => pow($a - $b, 2), $point1, $point2)));
     }
 
+    // Fungsi untuk menghitung Silhouette Score
+    private function calculateSilhouetteScore($clusters, $data)
+    {
+        $totalScore = 0;
+        $totalPoints = 0;
+
+        foreach ($clusters as $clusterIndex => $cluster) {
+            foreach ($cluster as $point) {
+                $a = $this->calculateAverageDistance($point, $cluster);
+
+                $b = INF;
+                foreach ($clusters as $otherIndex => $otherCluster) {
+                    if ($clusterIndex !== $otherIndex) {
+                        $b = min($b, $this->calculateAverageDistance($point, $otherCluster));
+                    }
+                }
+
+                $score = ($b - $a) / max($a, $b);
+                $totalScore += $score;
+                $totalPoints++;
+            }
+        }
+
+        return $totalPoints ? $totalScore / $totalPoints : 0;
+    }
+
+    // Fungsi untuk menghitung rata-rata jarak ke titik dalam cluster
+    private function calculateAverageDistance($point, $cluster)
+    {
+        $totalDistance = 0;
+        $totalPoints = count($cluster);
+
+        foreach ($cluster as $otherPoint) {
+            $totalDistance += $this->euclideanDistance($point, $otherPoint);
+        }
+
+        return $totalPoints ? $totalDistance / $totalPoints : 0;
+    }
+
     //pemetaan
     public function exportToGeoJSON($groupedByCluster)
     {
@@ -309,5 +358,31 @@ class ProsesController extends Controller
         // Mengirimkan nilai tahun dan hasil klasterisasi ke view
         $tahun = Sampah::select('tahun')->distinct()->orderBy('tahun', 'desc')->pluck('tahun')->toArray();
         return view('proses.map', compact('tahun', 'selectedYear', 'groupedByCluster'));
+    }
+
+    public function exportCluster($tahun)
+    {
+        $clusters = session('groupedByCluster');
+        // dd($clusters);
+        if (!$clusters) {
+            return redirect()->back()->with('error', 'Data hasil clustering belum tersedia.');
+        }
+
+        $dataForExport = collect();
+        foreach ($clusters as $clusterIndex => $clusterData) {
+            foreach ($clusterData as $data) {
+                $dataForExport->push([
+                    'Nama TPS' => $data['namaTPS'],
+                    'Volume Sampah (Ton)' => $data['volume'],
+                    'Jarak ke TPA (Km)' => $data['jarak'],
+                    'Rata-Rata Jarak (Km)' => $data['rata_rata_jarak'],
+                    'Cluster' => 'Cluster' . ($data['cluster'] + 1),
+                    'Prioritas' => $data['prioritas'],
+                ]);
+            }
+        }
+
+        return Excel::download(new ClusterExport($dataForExport), "Hasil_Clustering_$tahun.xlsx");
+
     }
 }

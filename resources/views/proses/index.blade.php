@@ -12,8 +12,8 @@
                             @csrf
                             <div class="form-group row align-items-center mb-4">
                                 <label class="col-auto col-form-label mb-0 me-2" for="tahun">Tahun</label>
-                                <div class="col-auto">
-                                    <select name="tahun" id="tahun" class="form-control" required>
+                                <div class="col-auto" style="width: 18%">
+                                    <select name="tahun" id="tahun" class="form-control choices-single" required>
                                         <option value="" disabled selected> Pilih Tahun </option>
                                         @foreach ($tahun as $data)
                                             <option value="{{ $data }}"
@@ -32,8 +32,10 @@
                                             {{ !isset($selectedYear) || !$selectedYear ? 'disabled' : '' }}>
                                             Pemetaan
                                         </a>
-                                        <a href="#" class="btn btn-primary" id="export-btn" style="min-width: 120px;"
-                                            disabled>Export Data</a>
+                                        <a href="{{ isset($selectedYear) && $selectedYear ? route('hasil.export', ['tahun' => $selectedYear]) : '#' }}" 
+                                            class="btn btn-primary" id="export-btn" style="min-width: 120px;"
+                                            {{ !isset($selectedYear) || !$selectedYear ? 'disabled' : '' }}>
+                                            Export</a>
                                     </div>
                                 </div>
                             </div>

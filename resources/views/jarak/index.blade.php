@@ -11,11 +11,11 @@
                         <div class="d-flex justify-content-between align-items-end mb-3" style="gap: 15px;">
                             <form method="GET" action="{{ route('jarak') }}" class="d-flex w-100" style="gap: 15px;"
                                 id="filterForm">
-                                <div class="d-flex flex-column" style="gap: 5px;">
+                                <div class="d-flex flex-column" style="gap: 5px; width: 50%;">
                                     <label for="tps_asal" class="form-label text-dark text-sm font-weight-medium mb-1">Pilih
                                         TPS Asal</label>
-                                    <select name="tps_asal" id="tps_asal" class="form-select"
-                                        style="width: 290px; height: 40px;" onchange="submitForm()">
+                                    <select name="tps_asal" id="tps_asal" class="form-select choices-single"
+                                        onchange="submitForm()">
                                         <option value="">-- Semua TPS --</option>
                                         @foreach ($tpsList as $tps)
                                             <option value="{{ $tps->id }}"
@@ -29,12 +29,12 @@
                                 <div class="d-flex flex-column" style="gap: 5px;">
                                     <label for="per_page" class="form-label text-dark text-sm font-weight-medium mb-1">Item
                                         per Halaman</label>
-                                    <select name="per_page" id="per_page" class="form-select"
-                                        style="width: 120px; height: 40px;" onchange="submitForm()">
+                                    <select name="per_page" id="per_page" class="choices-single"
+                                        onchange="submitForm()">
                                         <option value="4" {{ request('per_page') == 4 ? 'selected' : '' }}>4</option>
                                         <option value="8" {{ request('per_page') == 8 ? 'selected' : '' }}>8</option>
                                         <option value="24" {{ request('per_page') == 24 ? 'selected' : '' }}>24</option>
-                                        <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50
+                                        <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
                                         </option>
                                     </select>
                                 </div>
@@ -44,11 +44,11 @@
                             <div class="d-flex align-items-end" style="gap: 5px;">
                                 <a href="{{ route('jarak.tambah') }}" class="btn btn-outline-primary">Tambah</a>
                                 <a href="{{ route('jarak.import') }}" class="btn btn-warning">Import</a>
-                                <a class="btn btn-primary" href="#">Export</a>
+                                <a class="btn btn-primary" href="{{ route('jarak.export') }}">Export</a>
                             </div>
                         </div>
                         <div class="table-responsive p-0">
-                            <table class="table table align-items-center mb-0 ">
+                            <table class="table table align-items-center mb-0" id="dataTable" data-type="jarak">
                                 <thead>
                                     <tr>
                                         <th style="width: 100px;" class="text-dark text-center text-sm font-weight-medium">
@@ -61,8 +61,8 @@
                                             Aksi</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    @php($no = 1)
+                                <tbody id="table-body">
+                                    @php($no = ($jarak->currentPage() - 1) * $jarak->perPage() + 1)
                                     @foreach ($jarak as $row)
                                         <tr>
                                             <td class="text-dark text-center align-middle text-sm">{{ $no++ }}</td>

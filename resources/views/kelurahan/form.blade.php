@@ -9,8 +9,8 @@
             <div class="row">
                 <div class="col-12">
                     <div class="card shadow mb-0">
-                        <div class="card-body">
-                            <div class="form-group mb-4">
+                        <div class="card-body pb-1">
+                            <div class="form-group">
                                 <label for="namaKelurahan" class="text-dark text-sm font-weight-medium">Kelurahan</label>
                                 <input type="text" class="form-control" id="namaKelurahan" name="namaKelurahan"
                                     placeholder="Masukkan Kelurahan">
@@ -20,10 +20,12 @@
                             </div>
                             <div class="form-group mb-0">
                                 <label for="kecamatan_id" class="text-dark text-sm font-weight-medium">Kecamatan</label>
-                                <select class="form-control" name="kecamatan_id" id="kecamatan_id">
-                                    <option value="0" disabled selected>--- Pilih Kecamatan ---</option>
+                                <select class="form-select choices-single" name="kecamatan_id" id="kecamatan_id">
+                                    <option value="" disabled selected>--- Pilih Kecamatan ---</option>
                                     @foreach ($kecamatan as $row)
-                                        <option value="{{ $row->id }}">{{ $row->namaKecamatan }}</option>
+                                        <option value="{{ $row->id }}">
+                                            {{ $row->namaKecamatan }}
+                                        </option>
                                     @endforeach
                                 </select>
                                 <small id="errorKecamatan" class="text-danger" style="display: none;">
@@ -31,7 +33,7 @@
                                 </small>
                             </div>
                         </div>
-                        <div class="card-footer mt-0">
+                        <div class="card-footer pt-0">
                             <button type="submit" class="btn btn-primary bs-btn-active-bg">Simpan</button>
                         </div>
                     </div>
