@@ -35,47 +35,48 @@
     </style>
 </head>
 
-<body class="g-sidenav-show">
-
-    <img class="position-absolute top-0 w-100 h-100"
-        style="background-size: cover; background-position: center; filter: blur(2px);"
-        src="{{ asset('assets/img/bg-dlh.jpg') }}" alt="dlh-image.jpg">
-    <div class="container d-flex justify-content-center align-items-center mt-6">
-        <div class="card h-75 p-4 shadow" style="width: 450px;">
-            <h4 class="text-center mb-4">Register</h4>
+<body class="g-sidenav-show bg-gradient-primary">
+    <div class="container d-flex justify-content-center align-items-center" style="height: 100vh">
+        <div class="card h-auto p-4 shadow" style="width: 450px;">
+            <h4 class="text-center mb-5">Register</h4>
             <form method="POST" action="{{ route('register') }}">
                 @csrf
-                <div class="mb-3">
-                    <label for="name" class="form-label text-dark text-sm font-weight-bold">Name</label>
-                    <input type="text" name="name" id="name"
-                        class="form-control @error('name') is-invalid @enderror" value="{{ old('name') }}" required>
+                <div class="mb-4">
+                    <input type="text" name="name" id="name" placeholder="Name"
+                        class="form-control @error('name') is-invalid @enderror" value="{{ old('name') }}">
                     @error('name')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
-                <div class="mb-3">
-                    <label for="email" class="form-label text-dark text-sm font-weight-bold">Email</label>
-                    <input type="email" name="email" id="email"
-                        class="form-control @error('email') is-invalid @enderror" value="{{ old('email') }}" required>
+                <div class="mb-4">
+                    <input type="input" name="email" id="email" placeholder="Email"
+                        class="form-control @error('email') is-invalid @enderror" value="{{ old('email') }}">
                     @error('email')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
-                <div class="mb-3">
-                    <label for="password" class="form-label text-dark text-sm font-weight-bold">Password</label>
+                <div class="mb-4">
                     <div class="input-group">
-                        <input type="password" name="password" id="password"
-                            class="form-control @error('password') is-invalid @enderror" required>
+                        <input type="password" name="password" id="password" placeholder="Password"
+                            class="form-control @error('password') is-invalid @enderror" value="{{ old('password') }}">
+                        <span
+                            class="input-group-text @error('password') border-danger text-danger rounded-end @enderror"
+                            id="toggle-password" style="cursor: pointer;">
+                            <i class="bi bi-eye-slash" id="password-icon"></i>
+                        </span>
                         @error('password')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
-                        <span class="input-group-text" id="toggle-password" style="cursor: pointer;">
-                            <i class="bi bi-eye-slash" id="password-icon"></i>
-                        </span>
                     </div>
                 </div>
                 <button type="submit" class="btn btn-primary w-100 mt-4">Register</button>
             </form>
+            <div class="text-center mt-1 mb-1">
+                <a href="{{ route('login.form') }}" class="text-primary" style="text-decoration: underline">Already
+                    have an account?</a>
+            </div>
+            <div class="text-center mt-1 mb-1">
+            </div>
         </div>
     </div>
 

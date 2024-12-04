@@ -10,6 +10,12 @@
                 <div class="col-12">
                     <div class="card shadow mb-0">
                         <div class="card-body2 mb-0">
+                            <!-- Pesan Error untuk Kombinasi tps_id dan Tahun -->
+                            @if($errors->has('tps_tahun_exists'))
+                                <div class="alert alert-danger">
+                                    {{ $errors->first('tps_tahun_exists') }}
+                                </div>
+                            @endif
                             <div class="form-group mb-4">
                                 <label for="tps_id" class="text-dark text-sm font-weight-medium">Nama TPS</label>
                                 <select name="tps_id" id="tps_id" class="form-control choices-single" required>

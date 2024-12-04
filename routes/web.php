@@ -7,6 +7,7 @@ use App\Http\Controllers\jarakController;
 use App\Http\Controllers\kecamatanController;
 use App\Http\Controllers\kelurahanController;
 use App\Http\Controllers\parameterController;
+use App\Http\Controllers\PetaController;
 use App\Http\Controllers\prosesClustering;
 use App\Http\Controllers\prosesController;
 use App\Http\Controllers\SearchController;
@@ -46,6 +47,7 @@ Route::middleware(['first.visit'])->group(function () {
         Route::get('edit/{id}', 'edit')->name('kecamatan.edit');
         Route::post('edit/{id}', 'update')->name('kecamatan.tambah.update');
         Route::delete('id/{id}', 'hapus')->name('kecamatan.hapus');
+        Route::get('allKecamatan', 'allKecamatan')->name('allKecamatan');
     });
     
     Route::controller(kelurahanController::class)->prefix('kelurahan')->group(function() {
@@ -58,6 +60,7 @@ Route::middleware(['first.visit'])->group(function () {
         Route::get('import', 'importForm')->name('kelurahan.import');
         Route::post('import', 'import')->name('kelurahan.import.simpan');
         Route::get('export', 'export')->name('kelurahan.export');
+        Route::get('allKelurahan', 'allKelurahan')->name('allKelurahan');
         // Route::get('search', 'handleSearch')->name('kelurahan.search');
     });
     
@@ -71,6 +74,7 @@ Route::middleware(['first.visit'])->group(function () {
         Route::get('import', 'importForm')->name('tps.import');
         Route::post('import', 'import')->name('tps.import.simpan');
         Route::get('export', 'export')->name('tps.export');
+        Route::get('allTps', 'allTps')->name('allTps');
     });
     
     Route::controller(jarakController::class)->prefix('jarak')->group(function() {
@@ -83,6 +87,7 @@ Route::middleware(['first.visit'])->group(function () {
         Route::get('import', 'importForm')->name('jarak.import');
         Route::post('import', 'import')->name('jarak.import.simpan');
         Route::get('export', 'export')->name('jarak.export');
+        Route::get('allJarak', 'allJarak')->name('allJarak');
     });
     
     Route::controller(sampahController::class)->prefix('sampah')->group(function() {
@@ -97,6 +102,7 @@ Route::middleware(['first.visit'])->group(function () {
         Route::get('import', 'importForm')->name('sampah.import');
         Route::post('import', 'import')->name('sampah.import.simpan');
         Route::get('export', 'export')->name('sampah.export');
+        Route::get('allSampah', 'allSampah')->name('allSampah');
     });
     
     Route::controller(parameterController::class)->prefix('parameter')->group(function() {
@@ -106,14 +112,21 @@ Route::middleware(['first.visit'])->group(function () {
         Route::get('edit/{id}', 'edit')->name('parameter.edit');
         Route::post('edit/{id}', 'update')->name('parameter.tambah.update');
         Route::delete('id/{id}', 'hapus')->name('parameter.hapus');
+        Route::get('allParams', 'allParams')->name('allParams');
     });
     
     Route::controller(prosesController::class)->prefix('proses')->group(function() {
         Route::get('/', 'showProses')->name('proses');
+        // Route::get('/show-cluster', 'showCluster')->name('show.cluster');
         Route::post('/', 'showProses')->name('proses.cluster');
-        Route::get('/geojson/{tahun}', 'geojsonData')->name('proses.geojson');
-        Route::get('/map/{tahun}', 'showMap')->name('proses.map');
+        Route::get('/proses/cluster', 'processClustering')->name('proses.cluster2');
         Route::get('export/{tahun}', 'exportCluster')->name('hasil.export');
+    });
+
+    Route::controller(PetaController::class)->prefix('peta')->group(function() {
+        Route::get('/index', 'indexPeta')->name('peta');
+        Route::get('/showMap', 'showMap')->name('pemetaan');
+        Route::get('/geojson/{tahun}', 'geojsonData')->name('geojsonData');
     });
 
     Route::get('/search', [SearchController::class, 'search'])->name('search');

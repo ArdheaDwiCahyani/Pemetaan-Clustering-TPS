@@ -13,6 +13,13 @@ class kecamatanController extends Controller
         return view('kecamatan.index', compact('kecamatan'));
     }
 
+    public function allKecamatan() 
+    {
+        $allKecamatan = Kecamatan::all();
+
+        return response()->json($allKecamatan);
+    }
+
     public function tambah()
     {
         $kecamatan = Kecamatan::all();

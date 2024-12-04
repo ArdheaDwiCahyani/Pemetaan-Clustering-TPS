@@ -18,6 +18,7 @@ class SampahImport implements ToCollection, WithHeadingRow
     public function __construct($tahun)
     {
         $this->tahun = $tahun;
+        Log::info('Konstruktor SampahImport:', ['tahun' => $tahun]);
     }
 
     public function collection(Collection $rows)
@@ -36,7 +37,7 @@ class SampahImport implements ToCollection, WithHeadingRow
         foreach ($rows as $row) {
             // Ambil data dari kolom Excel
             $namaTps = strtolower(trim(str_replace(' ', '', $row['nama_tps'])));        // Kolom 'nama_tps'
-            $tahun = $this->tahun;              
+            $tahun = $this->tahun;
             $nilaiVolume = $row['volume_sampah'];
 
             // Cari TPS berdasarkan nama_tps

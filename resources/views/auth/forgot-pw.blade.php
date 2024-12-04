@@ -35,33 +35,26 @@
     </style>
 </head>
 
-<body class="g-sidenav-show">
-    <img class="position-absolute top-0 w-100 h-100"
-        style="background-size: cover; background-position: center; filter: blur(2px);"
-        src="{{ asset('assets/img/bg-dlh.jpg') }}" alt="dlh-image.jpg">
+<body class="g-sidenav-show bg-gradient-primary">
     <div class="container d-flex justify-content-center align-items-center" style="height: 100vh">
         <div class="card h-auto p-4 shadow" style="width: 450px;">
-            <h4 class="text-center mb-4">Forgot Password</h4>
+            <h4 class="text-center mb-5">Forgot Password</h4>
             <form method="POST" action="{{ route('reset-pw') }}">
                 @csrf
-                <div class="mb-3">
-                    <label for="email" class="form-label text-dark text-sm font-weight-bold">Email</label>
-                    <input type="text" name="email" id="email" class="form-control" required>
+                <div class="mb-4">
+                    <input type="text" name="email" id="email" class="form-control"  placeholder="Email" required>
                 </div>
-                <div class="mb-3">
-                    <label for="password" class="form-label text-dark text-sm font-weight-bold">New Password</label>
+                <div class="mb-4">
                     <div class="input-group">
-                        <input type="password" name="password" id="password" class="form-control" required>
+                        <input type="password" name="password" id="password" class="form-control" placeholder=" New Password" required>
                         <span class="input-group-text" id="toggle-password" style="cursor: pointer;">
                             <i class="bi bi-eye-slash" id="password-icon"></i>
                         </span>
                     </div>
                 </div>
                 <div class="mb-5">
-                    <label for="password_confirmation" class="form-label text-dark text-sm font-weight-bold">Confirm
-                        Password</label>
                     <div class="input-group">
-                        <input type="password" name="password_confirmation" id="password_confirmation"
+                        <input type="password" name="password_confirmation" id="password_confirmation" placeholder="Confirm Password"
                             class="form-control" required>
                         <span class="input-group-text" id="toggle-password-conformation" style="cursor: pointer;">
                             <i class="bi bi-eye-slash" id="password-confirmation-icon"></i>

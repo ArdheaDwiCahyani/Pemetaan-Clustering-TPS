@@ -37,7 +37,7 @@ class Tps extends Model
 
     public function sampah()
     {
-        return $this->hasMany(Sampah::class);
+        return $this->hasMany(Sampah::class, 'tps_id');
     }
 
     public function jarakKeTujuan()

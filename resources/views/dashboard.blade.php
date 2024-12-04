@@ -18,7 +18,7 @@
                             </div>
                         </div>
                         <div class="col-4 d-flex justify-content-center align-items-center">
-                            <div class="icon icon-md2 bg-gradient-primary text-center rounded-circle">
+                            <div class="icon icon-md2 bg-primary text-center rounded-circle">
                                 <i class="bi bi-map-fill text-light text-lg opacity-10" aria-hidden="true"></i>
                             </div>
                         </div>
@@ -39,7 +39,7 @@
                             </div>
                         </div>
                         <div class="col-4 d-flex justify-content-center align-items-center">
-                            <div class="icon icon-md2 bg-gradient-primary shadow-primary text-center rounded-circle">
+                            <div class="icon icon-md2 bg-primary shadow-primary text-center rounded-circle">
                                 <i class="bi bi-geo-fill text-light text-lg opacity-10" aria-hidden="true"></i>
                             </div>
                         </div>
@@ -60,7 +60,7 @@
                             </div>
                         </div>
                         <div class="col-4 d-flex justify-content-center align-items-center">
-                            <div class="icon icon-md2 bg-gradient-primary shadow-primary text-center rounded-circle">
+                            <div class="icon icon-md2 bg-primary shadow-primary text-center rounded-circle">
                                 <i class="bi bi-box-fill text-light text-lg opacity-10" aria-hidden="true"></i>
                             </div>
                         </div>
@@ -81,7 +81,7 @@
                             </div>
                         </div>
                         <div class="col-4 d-flex justify-content-center align-items-center">
-                            <div class="icon icon-md2 bg-gradient-primary shadow-primary text-center rounded-circle">
+                            <div class="icon icon-md2 bg-primary shadow-primary text-center rounded-circle">
                                 <i class="bi bi-database-fill text-light text-lg opacity-10" aria-hidden="true"></i>
                             </div>
                         </div>
@@ -102,7 +102,7 @@
                             </div>
                         </div>
                         <div class="col-4 d-flex justify-content-center align-items-center">
-                            <div class="icon icon-md2 bg-gradient-primary shadow-primary text-center rounded-circle">
+                            <div class="icon icon-md2 bg-primary shadow-primary text-center rounded-circle">
                                 <i class="bi bi-clipboard-data-fill text-light text-lg opacity-10" aria-hidden="true"></i>
                             </div>
                         </div>
@@ -123,7 +123,7 @@
                             </div>
                         </div>
                         <div class="col-4 d-flex justify-content-center align-items-center">
-                            <div class="icon icon-md2 bg-gradient-primary shadow-primary text-center rounded-circle">
+                            <div class="icon icon-md2 bg-primary shadow-primary text-center rounded-circle">
                                 <i class="bi bi-table text-light text-lg opacity-10" aria-hidden="true"></i>
                             </div>
                         </div>

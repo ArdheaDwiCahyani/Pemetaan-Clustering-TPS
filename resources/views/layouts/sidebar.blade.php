@@ -86,17 +86,11 @@
                 </a>
             </li>
             <li class="nav-item">
-                <form action="{{ route('logout') }}" method="POST" style="display:inline">
-                    @csrf
-                    <button type="submit" class="nav-link" style="border: none; background: none;">
-                        <div class="icon icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
-                            <i class="bi bi-box-arrow-left text-primary text-sm opacity-10"></i>
-                        </div>
-                        <span class="nav-link-text ms-1">Log Out</span>
-                    </button>
-                </form>
-                <a class="nav-link {{ request()->routeIs('logout') ? 'active' : '' }}" href="{{ route('logout') }}">
-                    
+                <a class="nav-link {{ request()->routeIs('peta') ? 'active' : '' }}" href="{{ route('peta') }}">
+                    <div class="icon icon-sm border-radius-md text-center me-2 d-flex align-items-center justify-content-center">
+                        <i class="bi bi-globe-central-south-asia text-primary text-sm opacity-10"></i>
+                    </div>
+                    <span class="nav-link-text ms-1">Pemetaan</span>
                 </a>
             </li>
 </aside>

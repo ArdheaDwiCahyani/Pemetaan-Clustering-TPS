@@ -21,13 +21,18 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|min:8' 
+        ]);
+
         $credentials = $request->only('email', 'password');
 
         if (Auth::attempt($credentials)) {
             return redirect()->route('dashboard'); // Atau sesuaikan dengan route yang Anda inginkan
         }
 
-        return back()->withErrors(['email' => 'Email atau password salah.']);
+        return back()->withErrors(['email' => 'Wrong email', 'password' => 'wrong password']);
     }
 
 
@@ -40,9 +45,9 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email:dns|max:255|unique:users',
-            'password' => 'required|string|min:8',
+            'name' => 'required|string|max:50',
+            'email' => 'required|email',
+            'password' => 'required|min:8',
         ]);
 
         User::create([
@@ -70,7 +75,7 @@ class AuthController extends Controller
     public function reset(Request $request)
     {
         $request->validate([
-            'email' => 'required|email:dns',
+            'email' => 'required|email',
             'password' => 'required',
         ]);
 

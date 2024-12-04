@@ -25,6 +25,37 @@ class tpsController extends Controller
         return view('tps.index', compact('tps', 'parameter', 'kelurahan'));
     }
 
+    public function allTps()
+    {
+        $allTps = Tps::all();
+        $allParameter = Parameter::all();
+
+        $tpsArray = $allTps->map(function ($row) use ($allParameter) {
+
+            $tpsData = [
+                'no' => $row->id,  // No bisa menggunakan id atau yang lain
+                'nama_tps' => $row->namaTPS,
+                'nama_kelurahan' => $row->kelurahan->namaKelurahan, // Ambil nama kelurahan yang terkait dengan TPS
+                'parameters' => []
+            ];
+
+            // Loop parameter untuk mencari nilai 'Jarak ke TPA'
+            foreach ($allParameter as $param) {
+                if ($param->namaParameter == 'Jarak ke TPA') {
+                    $nilaiParameter = $row->parameter->where('pivot.entity', 'tps')->first()->pivot->nilai_parameter ?? 'N/A';
+                    $tpsData['parameters'][] = [
+                        'nama_parameter' => $param->namaParameter,
+                        'jarak_tpa' => $nilaiParameter
+                    ];
+                }
+            }
+
+            return $tpsData;
+        });
+
+        return response()->json($tpsArray);
+    }
+
     public function tambah()
     {
         $kelurahan = Kelurahan::all();
@@ -47,11 +78,11 @@ class tpsController extends Controller
             'longitude' => 'required|numeric|min:-180|max:180',
         ]);
 
-        
+
         // Pastikan koordinat dibatasi dengan presisi tertentu sebelum disimpan
         $latitude = round($validatedData['latitude'], 8);  // Menggunakan 8 angka desimal
         $longitude = round($validatedData['longitude'], 8);  // Menggunakan 8 angka desimal
-        
+
 
         $tps = Tps::create([
             'namaTPS' => $validatedData['namaTPS'],
@@ -59,7 +90,7 @@ class tpsController extends Controller
             'latitude' => $latitude,
             'longitude' => $longitude,
         ]);
-        
+
 
         //menyimpan parameter dengan nilai ke tabel pivot (tpsParameter)
         $parameterData = [];

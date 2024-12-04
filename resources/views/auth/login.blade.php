@@ -35,44 +35,42 @@
     </style>
 </head>
 
-<body class="g-sidenav-show">
-
-    <img class="position-absolute top-0 w-100 h-100"
-        style="background-size: cover; background-position: center; filter: blur(2px);"
-        src="{{ asset('assets/img/bg-dlh.jpg') }}" alt="dlh-image.jpg">
+<body class="g-sidenav-show bg-gradient-primary">
     <div class="container d-flex justify-content-center align-items-center" style="height: 100vh">
         <div class="card h-auto p-4 shadow" style="width: 450px;">
-            <h4 class="text-center mb-4">Login</h4>
+            <h4 class="text-center mb-5">Welcome!</h4>
             <form method="POST" action="{{ route('login') }}">
                 @csrf
-                <div class="mb-3">
-                    <label for="email" class="form-label text-dark text-sm font-weight-bold">Email</label>
-                    <input type="email" name="email" id="email"
-                        class="form-control @error('email') is-invalid @enderror" value="{{ old('email') }}" required>
+                <div class="mb-4">
+                    <input type="input" name="email" id="email" placeholder="Email"
+                        class="form-control @error('email') is-invalid @enderror" value="{{ old('email') }}">
                     @error('email')
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
                 <div class="mb-4">
-                    <label for="password" class="form-label text-dark text-sm font-weight-bold">Password</label>
                     <div class="input-group">
-                        <input type="password" name="password" id="password"
-                            class="form-control @error('password') is-invalid @enderror" required>
+                        <input type="password" name="password" id="password" placeholder="Password"
+                            class="form-control @error('password') is-invalid @enderror" value="{{ old('password') }}">
+                        <span
+                            class="input-group-text @error('password') border-danger text-danger rounded-end @enderror"
+                            id="toggle-password" style="cursor: pointer;">
+                            <i class="bi bi-eye-slash" id="password-icon"></i>
+                        </span>
                         @error('password')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
-                        <span class="input-group-text" id="toggle-password" style="cursor: pointer;">
-                            <i class="bi bi-eye-slash" id="password-icon"></i>
-                        </span>
                     </div>
                     <div class="mt-2 text-end">
-                        <a href="{{ route('forgot-pw') }}" style="font-size: 14px" class="font-weight-medium">Forgot password?</a>
+                        <a href="{{ route('forgot-pw') }}" style="font-size: 14px" class="font-weight-medium">Forgot
+                            password?</a>
                     </div>
                 </div>
                 <button type="submit" class="btn btn-primary w-100 mt-1">Login</button>
             </form>
             <div class="text-center mt-1 mb-1">
-                <a href="{{ route('register.form') }}" class="btn btn-outline-primary w-100">Don't have an account?</a>
+                <a href="{{ route('register.form') }}" class="text-primary" style="text-decoration: underline">Don't
+                    have an account?</a>
             </div>
         </div>
     </div>

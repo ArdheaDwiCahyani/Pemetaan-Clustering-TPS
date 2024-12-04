@@ -3,43 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Exports\ClusterExport;
+use App\Models\ClusteringResult;
 use App\Models\Sampah;
 use App\Models\Tps;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ProsesController extends Controller
 {
-    // Fungsi untuk menampilkan halaman proses dengan dropdown tahun
-    public function showProses(Request $request)
-    {
-        // Mengambil tahun yang ada dalam tabel Sampah
-        $tahun = Sampah::select('tahun')
-            ->distinct()
-            ->orderBy('tahun', 'desc')
-            ->pluck('tahun')
-            ->toArray();
-
-        // Menangani kasus saat tahun belum dipilih atau tidak ada data
-        $selectedYear = $request->input('tahun');
-
-        $groupedByCluster = null;
-
-        if ($selectedYear && in_array($selectedYear, $tahun)) {
-            // Jika tahun valid dan dipilih
-            $groupedByCluster = $this->performClustering($selectedYear);
-
-            session(['groupedByCluster' => $groupedByCluster]);
-            session()->put('hasil_clustering', 'true');
-            session()->put('tahun_clustering', $selectedYear);
-        } else {
-            session()->forget(['hasil_clustering', 'tahun_clustering']);
-        }
-
-        return view('proses.index', compact('tahun', 'selectedYear', 'groupedByCluster'));
-    }
-
     // Fungsi untuk normalisasi data sampah berdasarkan tahun
     public function normalizeSampahData($tahun)
     {
@@ -122,53 +95,6 @@ class ProsesController extends Controller
         return $normalizedDataWithOriginal;
     }
 
-    // Fungsi untuk melakukan klasterisasi dengan K-Means++
-    public function performClustering($tahun)
-    {
-        // Mengambil dan menormalisasi data sampah berdasarkan tahun
-        $normalizedData = $this->normalizeSampahData($tahun)->toArray();
-
-        // Mengecek apakah data yang dinormalisasi kosong
-        if (empty($normalizedData)) {
-            return redirect()->back()->with('error', 'Data untuk tahun tersebut tidak tersedia untuk klasterisasi.');
-        }
-
-        // Melakukan klasterisasi dan mengembalikan hasil
-        $formattedData = array_map(fn($item) => [
-            $item['normalized_volume'],
-            $item['normalized_jarak'],
-            $item['normalized_rata_rata_jarak'],
-        ], $normalizedData);
-
-        // Jumlah klaster yang diinginkan
-        $k = 3;
-
-        // Menjalankan algoritma K-Means++
-        $result = $this->kmeansPlus($k, $formattedData);
-
-        foreach ($result['clusters'] as $clusterIndex => $cluster) {
-            foreach ($cluster as $dataPoint) {
-                $index = array_search($dataPoint, $formattedData);
-                if ($index !== false) {
-                    $normalizedData[$index]['cluster'] = $clusterIndex;
-                    $normalizedData[$index]['prioritas'] = match ($clusterIndex) {
-                        0 => 'Tinggi',
-                        1 => 'Sedang',
-                        2 => 'Rendah',
-                    };
-                }
-            }
-        }
-
-        $silhouetteScore = $this->calculateSilhouetteScore($result['clusters'], $formattedData);
-        Log::info('Silhouette Score:', ['score' => $silhouetteScore]);
-
-        $groupedByCluster = collect($normalizedData)->groupBy('cluster')->sortKeys();
-        // dd($groupedByCluster);
-
-        return $groupedByCluster;
-    }
-
     // Fungsi untuk melakukan K-Means++ (dengan pengambilan centroid yang lebih cermat)
     private function kmeansPlus($k, $data)
     {
@@ -179,7 +105,7 @@ class ProsesController extends Controller
         $clusters = [];
         $centroids = [];
 
-        // Inisialisasi centroid pertama secara spesifik, misalnya data ke-10 sebagai centroid pertama
+        // // Inisialisasi centroid pertama secara spesifik, misalnya data ke-10 sebagai centroid pertama
         $centroids[] = $data[9];
 
         // Logging informasi mengenai centroid yang dipilih
@@ -302,63 +228,206 @@ class ProsesController extends Controller
         return $totalPoints ? $totalDistance / $totalPoints : 0;
     }
 
-    //pemetaan
-    public function exportToGeoJSON($groupedByCluster)
+    // Fungsi untuk menampilkan halaman proses dengan dropdown tahun
+    public function showProses(Request $request)
     {
-        $features = [];
-        foreach ($groupedByCluster as $cluster => $tpsList) {
-            foreach ($tpsList as $tps) {
-                // Pastikan longitude dan latitude adalah tipe numerik
-                $longitude = (float) $tps['longitude'];
-                $latitude = (float) $tps['latitude'];
+        // Mengambil tahun yang ada dalam tabel Sampah
+        $tahun = Sampah::select('tahun')
+            ->distinct()
+            ->orderBy('tahun', 'desc')
+            ->pluck('tahun')
+            ->toArray();
 
-                // Periksa apakah kelurahan adalah string atau array
-                $kelurahan = is_array($tps['kelurahan']) ? $tps['kelurahan']['namaKelurahan'] : $tps['kelurahan'];
+        // Menangani kasus saat tahun belum dipilih atau tidak ada data
+        $selectedYear = $request->input('tahun');
 
-                $features[] = [
-                    'type' => 'Feature',
-                    'geometry' => [
-                        'type' => 'Point',
-                        'coordinates' => [$longitude, $latitude],
-                    ],
-                    'properties' => [
-                        'namaTPS' => $tps['namaTPS'],
-                        'kelurahan' => $kelurahan ?? null,
-                        'volume' => $tps['volume'],
-                        'jarak' => $tps['jarak'],
-                        'rata_rata_jarak' => $tps['rata_rata_jarak'],
-                        'cluster' => $tps['cluster'],
-                        'prioritas' => $tps['prioritas'],
-                    ],
-                ];
+        $groupedByCluster = null;
+
+        if ($selectedYear && in_array($selectedYear, $tahun)) {
+            // Jika tahun valid dan dipilih
+            $groupedByCluster = $this->performClustering($selectedYear);
+
+            session(['groupedByCluster' => $groupedByCluster]);
+            session()->put('hasil_clustering', 'true');
+            session()->put('tahun_clustering', $selectedYear);
+        } else {
+            session()->forget(['hasil_clustering', 'tahun_clustering']);
+        }
+
+        if ($request->ajax()) {
+            return response()->json([
+                'status' => 'success',
+                'groupedByCluster' => $groupedByCluster,
+            ]);
+        }
+
+        return view('proses.index', compact('tahun', 'selectedYear', 'groupedByCluster'));
+    }
+
+    // public function showCluster(Request $request)
+    // {
+
+    //     $tahun = $request->input('tahun');
+
+    //     // $tps = Tps::get('id');
+
+    //     $selectedYear = ClusteringResult::where('tahun', $tahun)->get();
+        
+    //     // $tpsName = $tps->where('id' , $selectedYear->where('tps_id'));
+    //     $clusterTinggi = $selectedYear->where('cluster', 0);
+    //     $clusterSedang = $selectedYear->where('cluster', 1);
+    //     $clusterRendah = $selectedYear->where('cluster', 2);
+
+
+
+
+    //     // dd($tpsName);
+
+    //     return response()->json(compact('selectedYear', 'clusterTinggi', 'clusterSedang', 'clusterRendah'));
+    // }
+    // public function showProses(Request $request)
+    // {
+    //     // Mengambil tahun yang ada dalam tabel Sampah
+    //     $tahun = Sampah::select('tahun')
+    //         ->distinct()
+    //         ->orderBy('tahun', 'desc')
+    //         ->pluck('tahun')
+    //         ->toArray();
+
+    //     // Menangani kasus saat tahun belum dipilih atau tidak ada data
+    //     $selectedYear = $request->input('tahun');        
+
+    //     // Jika permintaan AJAX
+    //     if ($request->ajax()) {
+    //         if ($selectedYear && in_array($selectedYear, $tahun)) {
+    //             // Proses clustering untuk tahun yang dipilih
+    //             $groupedByCluster = $this->performClustering($selectedYear);
+
+    //             // Mengembalikan hasil dalam bentuk HTML untuk ditampilkan di view
+    //             $html = view('proses.clustering_data', compact('groupedByCluster'))->render();
+
+    //             return response()->json([
+    //                 'status' => 'success',
+    //                 'data' => $html
+    //             ]);
+    //         } else {
+    //             return response()->json([
+    //                 'status' => 'error',
+    //                 'message' => 'Tahun tidak valid atau data tidak tersedia.'
+    //             ]);
+    //         }
+    //     }
+
+    //     // Jika bukan AJAX, tampilkan halaman normal
+    //     return view('proses.index', compact('tahun', 'selectedYear'));
+    // }
+
+    // Fungsi untuk melakukan klasterisasi dengan K-Means++
+    public function performClustering($tahun)
+    {
+        // Mengambil dan menormalisasi data sampah berdasarkan tahun
+        $normalizedData = $this->normalizeSampahData($tahun)->toArray();
+
+        // Mengecek apakah data yang dinormalisasi kosong
+        if (empty($normalizedData)) {
+            return redirect()->back()->with('error', 'Data untuk tahun tersebut tidak tersedia untuk klasterisasi.');
+        }
+
+        // Melakukan klasterisasi dan mengembalikan hasil
+        $formattedData = array_map(fn($item) => [
+            $item['normalized_volume'],
+            $item['normalized_jarak'],
+            $item['normalized_rata_rata_jarak'],
+        ], $normalizedData);
+
+        // Jumlah klaster yang diinginkan
+        $k = 3;
+
+        // Menjalankan algoritma K-Means++
+        $result = $this->kmeansPlus($k, $formattedData);
+
+        foreach ($result['clusters'] as $clusterIndex => $cluster) {
+            foreach ($cluster as $dataPoint) {
+                $index = array_search($dataPoint, $formattedData);
+                if ($index !== false) {
+                    $normalizedData[$index]['cluster'] = $clusterIndex;
+                    $normalizedData[$index]['prioritas'] = match ($clusterIndex) {
+                        0 => 'Tinggi',
+                        1 => 'Sedang',
+                        2 => 'Rendah',
+                    };
+                }
             }
         }
 
-        return json_encode([
-            'type' => 'FeatureCollection',
-            'features' => $features,
+        $silhouetteScore = $this->calculateSilhouetteScore($result['clusters'], $formattedData);
+        Log::info('Silhouette Score:', ['score' => $silhouetteScore]);
+
+        $groupedByCluster = collect($normalizedData)->groupBy('cluster')->sortKeys();
+
+        foreach ($groupedByCluster as $clusterIndex => $cluster) {
+            foreach ($cluster as $dataPoint) {
+                // Pastikan dataPoint memiliki tps_id dan data yang valid untuk disimpan
+                try {
+                    ClusteringResult::create([
+                        'tps_id' => $dataPoint['tps_id'],
+                        'normalized_volume' => $dataPoint['normalized_volume'],
+                        'normalized_jarak' => $dataPoint['normalized_jarak'],
+                        'normalized_rata_rata_jarak' => $dataPoint['normalized_rata_rata_jarak'],
+                        'cluster' => $clusterIndex,
+                        'prioritas' => $dataPoint['prioritas'],
+                        'tahun' => $tahun,
+                    ]);
+                } catch (\Exception $e) {
+                    Log::error('Gagal menyimpan clustering result', ['error' => $e->getMessage()]);
+                }
+            }
+        }
+
+        return $groupedByCluster;
+    }
+
+
+    // public function getClusteringResults(Request $request)
+    // {
+    //     $tahun = $request->input('tahun');
+    //     $results = ClusteringResult::where('tahun', $tahun)->get();
+
+    //     if ($results->isEmpty()) {
+    //         return response()->json(['status' => 'empty', 'message' => 'No clustering data found for the selected year.']);
+    //     }
+
+    //     return response()->json(['status' => 'success', 'data' => $results]);
+    // }
+
+    public function processClustering(Request $request)
+    {
+        $tahun = $request->input('tahun');
+        dd($tahun);
+
+        // Cek apakah data hasil clustering sudah ada untuk tahun yang dipilih
+        $existingResults = ClusteringResult::where('tahun', $tahun)->exists();
+
+
+        if ($existingResults && !$request->input('force')) {
+            return response()->json(['status' => 'exists', 'message' => 'Hasil Clustering untuk tahun ini sudah ada. Proses ulang?']);
+        }
+
+        // Jika sudah ada, dan ada parameter force, hapus hasil lama dan proses ulang
+        if ($existingResults && $request->input('force')) {
+            ClusteringResult::where('tahun', $tahun)->delete();
+        }
+
+        // Proses clustering dan simpan hasilnya
+        $groupedByCluster = $this->performClustering($tahun); // Proses klasterisasi
+
+        // Mengembalikan respon setelah selesai
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Clustering selesai dan data telah tersimpan'
         ]);
     }
 
-    //endpoint u/ akses json
-    public function geojsonData($tahun)
-    {
-        $groupedByCluster = $this->performClustering($tahun);
-        return response($this->exportToGeoJSON($groupedByCluster), 200)->header('Content-Type', 'application/json');
-    }
-
-    public function showMap(Request $request)
-    {
-        // Mendapatkan input 'tahun' dari URL, default ke tahun saat ini jika tidak ada
-        $selectedYear = $request->input('tahun', optional(Sampah::first())->tahun);
-
-        // Mendapatkan hasil klasterisasi berdasarkan tahun
-        $groupedByCluster = $this->performClustering($selectedYear);
-
-        // Mengirimkan nilai tahun dan hasil klasterisasi ke view
-        $tahun = Sampah::select('tahun')->distinct()->orderBy('tahun', 'desc')->pluck('tahun')->toArray();
-        return view('proses.map', compact('tahun', 'selectedYear', 'groupedByCluster'));
-    }
 
     public function exportCluster($tahun)
     {
@@ -383,6 +452,5 @@ class ProsesController extends Controller
         }
 
         return Excel::download(new ClusterExport($dataForExport), "Hasil_Clustering_$tahun.xlsx");
-
     }
 }

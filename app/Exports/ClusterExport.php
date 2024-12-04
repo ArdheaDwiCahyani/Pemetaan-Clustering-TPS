@@ -25,8 +25,8 @@ class ClusterExport implements FromCollection, WithHeadings, ShouldAutoSize
         return [
             'Nama TPS',
             'Volume Sampah (Ton)',
-            'Jarak ke TPA',
-            'Rata-Rata Jarak',
+            'Jarak ke TPA (Km)',
+            'Rata-Rata Jarak (Km)',
             'Cluster',
             'Prioritas',
         ];

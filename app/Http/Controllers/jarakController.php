@@ -30,6 +30,21 @@ class jarakController extends Controller
         return view('jarak.index', compact('jarak', 'tpsList', 'tpsAsalId'));
     }
 
+    public function allJarak() 
+    {
+        $jarak = Jarak::all();
+        $jarakData = $jarak->map(function ($row, $index) {
+            return [
+                'no' => $index + 1,
+                'tps_asal' => $row->tpsAsal->namaTPS,
+                'tps_tujuan' => $row->tpsTujuan->namaTPS,
+                'jarak' => $row->jarak,
+            ];
+        });
+
+        return response()->json($jarakData);
+    }
+
     public function tambah()
     {
         $tps = Tps::all();

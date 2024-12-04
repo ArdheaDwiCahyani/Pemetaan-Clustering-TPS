@@ -10,6 +10,13 @@
                 <div class="col-12">
                     <div class="card shadow mb-0">
                         <div class="card-body2 mb-0">
+                            <!-- Pesan Error untuk Kombinasi tps_id dan Tahun -->
+                            @if($errors->has('tps_tahun_exists'))
+                                <div class="alert alert-danger">
+                                    {{ $errors->first('tps_tahun_exists') }}
+                                </div>
+                            @endif
+
                             <!-- Pilih TPS -->
                             <div class="form-group mb-4">
                                 <label for="tps_id" class="text-dark text-sm font-weight-medium">Nama TPS</label>
@@ -27,8 +34,7 @@
                             <!-- Tahun -->
                             <div class="form-group mb-4">
                                 <label for="tahun" class="text-dark text-sm font-weight-medium">Tahun</label>
-                                <input type="number" class="form-control" id="tahun" name="tahun"
-                                    value="{{ old('tahun', $tahun) }}" readonly>
+                                <input type="number" class="form-control" id="tahun" name="tahun" readonly>
                                 <small id="errorTahun" class="text-danger" style="display: none;">
                                     Kolom tidak boleh kosong!
                                 </small>
@@ -41,7 +47,8 @@
                                         <div class="form-group mb-4">
                                             <label for="volume_sampah_{{ $param->id }}"
                                                 class="text-dark text-sm font-weight-medium">{{ $param->namaParameter }}
-                                                (Ton)</label>
+                                                (Ton)
+                                            </label>
                                             <input type="number" name="volume_sampah[{{ $param->id }}]"
                                                 id="volume_sampah_{{ $param->id }}" class="form-control"
                                                 placeholder="Masukkan Volume Sampah" step="any">
@@ -62,7 +69,19 @@
             </div>
         </div>
     </form>
+    <script>
+        // Ambil nilai dari localStorage dengan key 'selectedYear'
+        const selectedYear = localStorage.getItem('selectedYear');
 
+        // Cek apakah nilai ada di localStorage
+        if (selectedYear) {
+            // Set nilai input tahun
+            document.getElementById('tahun').value = selectedYear;
+        } else {
+            // Tampilkan error jika localStorage kosong
+            document.getElementById('errorTahun').style.display = 'block';
+        }
+    </script>
     <script>
         document.getElementById("myForm").addEventListener("submit", function(event) {
             let isFormValid = true;
@@ -90,7 +109,7 @@
             // Validasi Volume Sampah
             const volumeInputs = document.querySelectorAll("input[name^='volume_sampah']");
             volumeInputs.forEach((input) => {
-                const errorElement = document.getElementById(`errorVolume_${input.id.split('_')[2]}`);
+                const errorElement = document.getElementById(errorVolume_${input.id.split('_')[2]});
                 const value = parseFloat(input.value);
                 if (isNaN(value) || value < 0) {
                     errorElement.style.display = "block";
@@ -119,7 +138,7 @@
         const volumeInputs = document.querySelectorAll("input[name^='volume_sampah']");
         volumeInputs.forEach((input) => {
             input.addEventListener("input", function() {
-                const errorElement = document.getElementById(`errorVolume_${input.id.split('_')[2]}`);
+                const errorElement = document.getElementById(errorVolume_${input.id.split('_')[2]});
                 errorElement.style.display = "none";
             });
         });

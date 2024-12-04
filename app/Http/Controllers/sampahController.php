@@ -14,69 +14,33 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class sampahController extends Controller
 {
-    public function addTahun(Request $request)
-    {
-        $request->validate([
-            'tahun' => 'required|numeric|digits:4',
-        ]);
-
-        $tahunList = session('tahun_list', []);
-
-        if (!in_array($request->tahun, $tahunList)) {
-            session()->push('tahun_list', $request->tahun);
-        }
-
-        return redirect()->route('sampah');
-    }
-
-    public function removeTahun(Request $request)
-    {
-        // Ambil tahun yang dipilih dari request
-        $tahun = $request->input('tahun');
-
-        // Pastikan tahun yang dipilih tidak kosong dan ada di session
-        if ($tahun && session()->has('tahun_list')) {
-            // Ambil daftar tahun yang ada di session
-            $tahunList = session('tahun_list');
-
-            // Jika tahun ditemukan, hapus dari array
-            if (($key = array_search($tahun, $tahunList)) !== false) {
-                unset($tahunList[$key]);
-                session()->put('tahun_list', array_values($tahunList));
-            }
-        }
-
-        // Redirect kembali ke halaman daftar sampah atau halaman yang diinginkan
-        return redirect()->route('sampah');
-    }
 
     public function index(Request $request)
     {
-        $tahunDatabase = Sampah::distinct()->pluck('tahun')->toArray();
+        return view('sampah.index');
+    }
 
-        // Ambil tahun dari session (jika ada)
-        $tahunSession = session('tahun_list', []);
+    //semua data sampah
+    public function allSampah()
+    {
+        $sampah = Sampah::all();
 
-        // Gabungkan tahun dari database dan session, lalu hilangkan duplikasi
-        $tahunList = array_unique(array_merge($tahunDatabase, $tahunSession));
+        $sampahArray = $sampah->map(function ($data) {
+            return [
+                'id' => $data->id ?? null,
+                'nama_tps' => $data->tps->namaTPS ?? null,
+                'tahun' => $data->tahun ?? null,
+                'volume_sampah' => $data->tps->parameter
+                    ->where('pivot.entity', 'sampah')
+                    ->first()
+                    ->pivot
+                    ->nilai_parameter ?? null,
+                'jarak_tpa' => $data->jarak_tpa ?? null,
+                'rata_rata_jarak' => $data->rata_rata_jarak ?? null,
+            ];
+        });
 
-        // Ambil filter tahun dan jumlah item per halaman
-        $tahun = $request->input('tahun');
-        $perPage = $request->input('per_page', 4);
-
-        $isDataAvailable = false;
-        if ($tahun) {
-            $isDataAvailable = Sampah::where('tahun', $tahun)->exists();
-        }
-
-        if ($tahun) {
-            $sampah = Sampah::where('tahun', $tahun)->paginate($perPage);
-        } else {
-            $sampah = Sampah::paginate($perPage);
-        }
-
-        // Pass data ke view
-        return view('sampah.index', compact('tahunList', 'sampah', 'tahun', 'isDataAvailable'));
+        return response()->json($sampahArray);
     }
 
     public function tambah(Request $request)
@@ -97,10 +61,22 @@ class sampahController extends Controller
     {
         $validatedData = $request->validate([
             'tps_id' => 'required|exists:tps,id',
-            'tahun' => 'required|numeric|digits:4',
+            'tahun' => 'required|digits:4|numeric',
             'volume_sampah' => 'required|array',
             'volume.*' => 'numeric',
         ]);
+
+        // Cek apakah kombinasi tps_id dan tahun sudah ada
+        $existingRecord = Sampah::where('tps_id', $request->tps_id)
+            ->where('tahun', $request->tahun)
+            ->first();
+
+        if ($existingRecord) {
+            // Jika ada, kembalikan ke halaman sebelumnya dengan pesan error
+            return redirect()->back()->withErrors([
+                'tps_tahun_exists' => 'Data untuk TPS dan tahun ini sudah ada !',
+            ]);
+        }
 
         $sampah = Sampah::create([
             'tps_id' => $validatedData['tps_id'],
@@ -159,6 +135,18 @@ class sampahController extends Controller
 
         $sampah = Sampah::find($id);
 
+        // Cek apakah kombinasi tps_id dan tahun sudah ada
+        $existingRecord = Sampah::where('tps_id', $request->tps_id)
+            ->where('tahun', $request->tahun)
+            ->first();
+
+        if ($existingRecord) {
+            // Jika ada, kembalikan ke halaman sebelumnya dengan pesan error
+            return redirect()->back()->withErrors([
+                'tps_tahun_exists' => 'Data untuk TPS dan tahun ini sudah ada !',
+            ]);
+        }
+
         if ($sampah) {
             $sampah->update([
                 'tps_id' => $validatedData['tps_id'],
@@ -215,9 +203,11 @@ class sampahController extends Controller
     public function import(Request $request)
     {
         $tahun = $request->input('tahun');
+        // dd($tahun);
 
         $request->validate([
             'file' => 'required|mimes:xlsx,xls,csv|max:2048',
+            // 'tahun' => 'required|digits:4',
         ]);
         // Import file
         $import = new SampahImport($tahun); // Kirimkan tahun ke class import

@@ -13,6 +13,12 @@ class parameterController extends Controller
         return view('parameter.index', compact('parameter'));
     }
 
+    public function allParams()
+    {
+        $params = Parameter::all();
+        
+        return response()->json($params);
+    }
     public function tambah()
     {
         $parameter = Parameter::all();

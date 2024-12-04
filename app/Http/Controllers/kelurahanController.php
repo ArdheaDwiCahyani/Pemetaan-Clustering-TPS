@@ -31,6 +31,25 @@ class kelurahanController extends Controller
         return view('kelurahan.index', compact('kelurahan', 'kecamatan', 'selectedKecamatan', 'perPage'));
     }
 
+    public function allKelurahan()
+    {
+        // Ambil semua data Kelurahan
+        $allKelurahan = Kelurahan::all();
+
+        // Ubah data untuk mengganti kecamatan_id dengan nama kecamatan
+        $response = $allKelurahan->map(function ($kelurahan) {
+            $kecamatan = Kecamatan::find($kelurahan->kecamatan_id);
+            return [
+                'id' => $kelurahan->id,
+                'namaKelurahan' => $kelurahan->namaKelurahan,
+                'kecamatan' => $kecamatan ? $kecamatan->namaKecamatan : 'Tidak Diketahui', // Handle jika kecamatan tidak ditemukan
+            ];
+        });
+
+        // Return dalam format JSON
+        return response()->json($response);
+    }
+
     public function handleSearch(Request $request)
     {
         // Ambil nilai input dari form

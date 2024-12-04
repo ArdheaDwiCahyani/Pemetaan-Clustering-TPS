@@ -16,6 +16,9 @@ return new class extends Migration
             $table->foreignId('tps_id')->nullable()->constrained('tps')->onDelete('cascade');
             $table->year('tahun');
             $table->timestamps();
+
+            // Menambahkan unique constraint pada kombinasi tps_id dan tahun
+            $table->unique(['tps_id', 'tahun'], 'unique_tps_tahun');
         });
     }
 

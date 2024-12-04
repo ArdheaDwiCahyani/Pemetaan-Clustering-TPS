@@ -8,39 +8,7 @@
             <div class="col-12">
                 <div class="card mb-0">
                     <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-end mb-3" style="gap: 15px;">
-                            <form method="GET" action="{{ route('jarak') }}" class="d-flex w-100" style="gap: 15px;"
-                                id="filterForm">
-                                <div class="d-flex flex-column" style="gap: 5px; width: 50%;">
-                                    <label for="tps_asal" class="form-label text-dark text-sm font-weight-medium mb-1">Pilih
-                                        TPS Asal</label>
-                                    <select name="tps_asal" id="tps_asal" class="form-select choices-single"
-                                        onchange="submitForm()">
-                                        <option value="">-- Semua TPS --</option>
-                                        @foreach ($tpsList as $tps)
-                                            <option value="{{ $tps->id }}"
-                                                {{ $tpsAsalId == $tps->id ? 'selected' : '' }}>
-                                                {{ $tps->namaTPS }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <!-- Dropdown Item per Halaman -->
-                                <div class="d-flex flex-column" style="gap: 5px;">
-                                    <label for="per_page" class="form-label text-dark text-sm font-weight-medium mb-1">Item
-                                        per Halaman</label>
-                                    <select name="per_page" id="per_page" class="choices-single"
-                                        onchange="submitForm()">
-                                        <option value="4" {{ request('per_page') == 4 ? 'selected' : '' }}>4</option>
-                                        <option value="8" {{ request('per_page') == 8 ? 'selected' : '' }}>8</option>
-                                        <option value="24" {{ request('per_page') == 24 ? 'selected' : '' }}>24</option>
-                                        <option value="50" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
-                                        </option>
-                                    </select>
-                                </div>
-                            </form>
-
-                            <!-- Tombol Aksi -->
+                        <div class="d-flex justify-content-start mb-3" style="gap: 15px;">
                             <div class="d-flex align-items-end" style="gap: 5px;">
                                 <a href="{{ route('jarak.tambah') }}" class="btn btn-outline-primary">Tambah</a>
                                 <a href="{{ route('jarak.import') }}" class="btn btn-warning">Import</a>
@@ -48,56 +16,217 @@
                             </div>
                         </div>
                         <div class="table-responsive p-0">
-                            <table class="table table align-items-center mb-0" id="dataTable" data-type="jarak">
-                                <thead>
-                                    <tr>
-                                        <th style="width: 100px;" class="text-dark text-center text-sm font-weight-medium">
-                                            No</th>
-                                        <th class="text-dark text-sm font-weight-medium px-5">TPS Asal</th>
-                                        <th class="text-dark text-sm font-weight-medium px-6">TPS Tujuan</th>
-                                        <th style="width: 200px",
-                                            class="text-center text-dark text-sm font-weight-medium px-6">Jarak (km)</th>
-                                        <th style="width: 200px", class="text-center text-dark text-sm font-weight-medium">
-                                            Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="table-body">
-                                    @php($no = ($jarak->currentPage() - 1) * $jarak->perPage() + 1)
-                                    @foreach ($jarak as $row)
-                                        <tr>
-                                            <td class="text-dark text-center align-middle text-sm">{{ $no++ }}</td>
-                                            <td class="text-dark align-middle text-sm px-5">{{ $row->tpsAsal->namaTPS }}
-                                            </td>
-                                            <td class="text-dark align-middle text-sm px-6">{{ $row->tpsTujuan->namaTPS }}
-                                            </td>
-                                            <td class="text-center text-dark align-middle text-sm px-6">{{ $row->jarak }}
-                                            </td>
-                                            <td class="text-dark text-center align-middle text-center icon-lg">
-                                                <a href="{{ route('jarak.edit', $row->id) }}">
-                                                    <i class="fa-solid fa-edit btn-outline-success"
-                                                        style="margin-right: 5px;"></i>
-                                                </a>
-                                                <a href="{{ route('jarak.hapus', $row->id) }}" id="delete">
-                                                    <i class="fa-solid fa-trash btn-outline-danger"></i>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
+                            <table id="data-table" class="table table-striped table-hover">
+
                             </table>
-                            <div class="d-flex justify-content-center mt-4">
-                                {{ $jarak->appends(request()->input())->links() }}
-                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <script>
-            function submitForm() {
-                document.getElementById('filterForm').submit();
+    <!-- Tambahkan CSS Kustom untuk DataTables -->
+    <style>
+        /* Menyesuaikan ukuran dan jenis font untuk Search dan Show Entries */
+        .dataTables_wrapper .dataTables_filter label,
+        .dataTables_wrapper .dataTables_length label,
+        .dataTables_wrapper .dataTables_info label {
+            font-size: 1rem;
+            font-weight: 500;
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        /* Menyesuaikan ukuran dan jenis font untuk input Search */
+        .dataTables_wrapper .dataTables_filter input {
+            font-size: 1rem;
+            font-family: 'Open Sans', sans-serif;
+            padding: 0.375rem 0.75rem;
+            /* Padding sesuai dengan Bootstrap/Argon */
+            border: 1px solid #ced4da;
+            border-radius: 0.375rem;
+        }
+
+        /* Menyesuaikan ukuran dan jenis font untuk dropdown Show Entries */
+        .dataTables_wrapper .dataTables_length select {
+            font-size: 1rem;
+            font-family: 'Open Sans', sans-serif;
+            padding: 0.375rem 0.75rem;
+            border: 1px solid #ced4da;
+            border-radius: 0.375rem;
+        }
+
+        .select2-container .select2-selection--single {
+            font-size: 0.875rem;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            /* padding: 5px; */
+            border: 1px solid #ccc;
+        }
+
+        .select2-container .select2-selection--single .select2-selection__rendered {
+            color: #344767;
+            font-size: 0.875rem;
+            /* font-weight: bold; */
+        }
+
+        .select2-container .select2-selection--single .select2-selection__arrow {
+            color: #344767;
+            font-size: 0.875rem;
+        }
+
+        .select2-dropdown .select2-results__option {
+            font-size: 0.875rem;
+        }
+    </style>
+
+    <script>
+        // Fungsi untuk memuat script dan stylesheet secara dinamis
+        function loadScripts(callback) {
+            // Muat jQuery terlebih dahulu
+            var scriptJQuery = document.createElement("script");
+            scriptJQuery.src = "https://code.jquery.com/jquery-3.2.1.min.js";
+            scriptJQuery.type = "text/javascript";
+            scriptJQuery.onload = function() {
+                // Setelah jQuery dimuat, muat Select2 CSS
+                var linkSelect2 = document.createElement("link");
+                linkSelect2.rel = "stylesheet";
+                linkSelect2.href = "https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css";
+                document.head.appendChild(linkSelect2);
+
+                // Setelah Select2 CSS dimuat, muat Select2 JS
+                var scriptSelect2 = document.createElement("script");
+                scriptSelect2.src = "https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js";
+                scriptSelect2.type = "text/javascript";
+                scriptSelect2.onload = function() {
+                    // Semua script dan stylesheet sudah dimuat, jalankan callback untuk inisialisasi
+                    callback();
+                };
+                document.head.appendChild(scriptSelect2);
+            };
+            document.head.appendChild(scriptJQuery);
+        }
+    </script>
+
+    <script>
+        // Fungsi untuk memuat jQuery dan DataTable hanya saat diperlukan
+        function loadDataTableScript(callback) {
+            // Cek apakah jQuery sudah dimuat
+            if (typeof jQuery == 'undefined') {
+                var scriptJQuery = document.createElement("script");
+                scriptJQuery.src = "https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js";
+                scriptJQuery.type = "text/javascript";
+                scriptJQuery.onload = function() {
+                    loadDataTableAssets(callback); // Panggil loadAssets setelah jQuery dimuat
+                };
+                document.head.appendChild(scriptJQuery);
+            } else {
+                loadDataTableAssets(callback); // Jika jQuery sudah dimuat, langsung panggil loadAssets
             }
-        </script>
+        }
 
-    @endsection
+        function loadDataTableAssets(callback) {
+            // Muat DataTables CSS
+            var linkDataTables = document.createElement("link");
+            linkDataTables.rel = "stylesheet";
+            linkDataTables.href = "https://cdn.datatables.net/v/dt/dt-1.13.6/datatables.min.css";
+            document.head.appendChild(linkDataTables);
+
+            // Muat DataTables JS
+            var scriptDataTables = document.createElement("script");
+            scriptDataTables.src = "https://cdn.datatables.net/v/dt/dt-1.13.6/datatables.min.js";
+            scriptDataTables.type = "text/javascript";
+            scriptDataTables.onload = function() {
+                // Muat Bootstrap JS setelah DataTables JS
+                var scriptBootstrap = document.createElement("script");
+                scriptBootstrap.src = "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js";
+                scriptBootstrap.integrity = "sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM";
+                scriptBootstrap.crossOrigin = "anonymous";
+                document.head.appendChild(scriptBootstrap);
+
+                // Panggil callback setelah semua resource dimuat
+                scriptBootstrap.onload = callback;
+            };
+            document.head.appendChild(scriptDataTables);
+        }
+
+        // Fungsi untuk menginisialisasi DataTable dengan ID #data-table
+        function initializeDataTable() {
+            $(document).ready(function() {
+                const table = $('#data-table').DataTable({
+                    processing: true,
+                    responsive: true,
+                    autoWidth: false,
+                    paging: true,
+                    ajax: {
+                        "url": "{{ route('allJarak') }}",
+                        "type": "GET",
+                        dataSrc: function(json) {
+                            return json.map((item, index) => {
+                                item.no = index + 1;
+                                return item;
+                            })
+                        }
+                    },
+                    language: {
+                        paginate: {
+                            next: '<i class="fa fa-angle-double-right" aria-hidden="true"></i>',
+                            previous: '<i class="fa fa-angle-double-left" aria-hidden="true"></i>'
+                        }
+                    },
+                    columns: [{
+                            data: 'no',
+                            title: 'No',
+                            className: 'text-center text-dark text-sm w-10'
+                        },
+                        {
+                            data: "tps_asal",
+                            title: 'TPS Asal',
+                            className: 'text-left text-dark text-sm'
+                        },
+                        {
+                            data: "tps_tujuan",
+                            title: 'TPS Tujuan',
+                            className: 'text-left text-dark text-sm'
+                        },
+                        {
+                            data: "jarak",
+                            title: 'Jarak',
+                            className: 'text-center text-dark text-sm w-15'
+                        },
+                        {
+                            title: "Action",
+                            className: 'text-center text-dark text-sm w-10',
+                            data: null,
+                            orderable: false,
+                            searchable: false,
+                            render: function(data, type, row) {
+                                return `
+                                <div class="text-center align-middle px-0" style="font-size: 20px;">
+                                    <a href="{{ route('jarak.edit', ':id') }}">
+                                        <i class="fa-solid fa-edit btn-outline-success" style="margin-right: 5px;"></i>
+                                    </a>
+                                    <a href="{{ route('jarak.hapus', ':id') }}"
+                                        id="delete">
+                                        <i class="fa-solid fa-trash btn-outline-danger"></i>
+                                    </a>
+                                </div>
+                  `.replace(/:id/g, row.id);
+                            }
+                        }
+                    ],
+                });
+
+                // Tambahkan Kelas Argon ke Elemen Search dan Show Entries setelah DataTable diinisialisasi
+                $('.dataTables_filter label, .dataTables_length label, .dataTables_info label').addClass(
+                    'text-sm font-weight-medium text-dark');
+                $('.dataTables_filter input, .dataTables_length select').addClass(
+                    'text-sm font-weight-medium text-dark');
+            });
+        }
+
+        // Panggil fungsi loadDataTableScript untuk memuat semua script yang dibutuhkan, kemudian inisialisasi DataTable
+        loadDataTableScript(initializeDataTable);
+    </script>
+
+@endsection

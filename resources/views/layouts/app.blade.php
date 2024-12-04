@@ -52,7 +52,7 @@
 
 <!-- SIDEBAR -->
 
-<body class="g-sidenav-show bg-primary">
+<body class="g-sidenav-show bg-p">
     <div class="position-absolute w-100"></div>
     <!-- Sidebar -->
     @include('layouts.sidebar')
@@ -169,7 +169,7 @@
     <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
     <script src="../assets/js/argon-dashboard.min.js?v=2.0.4"></script>
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    {{-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script type="text/javascript">
@@ -239,38 +239,58 @@
         })
     </script>
 
+    {{-- dropdown data wilayah --}}
     <script>
-        $(document).ready(function() {
-            let submenuOpen = false; // Status submenu
+        // Muat jQuery secara dinamis
+        function loadJQuery(callback) {
+            if (typeof jQuery == 'undefined') {
+                var script = document.createElement('script');
+                script.src = "https://code.jquery.com/jquery-3.6.0.min.js";
+                script.type = "text/javascript";
+                script.onload = callback;
+                document.head.appendChild(script);
+            } else {
+                callback();
+            }
+        }
 
-            // Toggle submenu hanya ketika menu Data Wilayah diklik
-            $('#dataWilayahDropdown').on('click', function(e) {
-                e.preventDefault(); // Mencegah default behavior link
-                submenuOpen = !submenuOpen; // Toggle status submenu
+        // Inisialisasi fungsi dropdown
+        function initializeDropdown() {
+            $(document).ready(function() {
+                let submenuOpen = false; // Status submenu
 
-                if (submenuOpen) {
-                    $('#subMenu').css('display', 'block'); // Tampilkan submenu
-                    $('#dropdownIcon').removeClass('bi-chevron-down').addClass('bi-chevron-up');
-                } else {
-                    $('#subMenu').css('display', 'none'); // Sembunyikan submenu
-                    $('#dropdownIcon').removeClass('bi-chevron-up').addClass('bi-chevron-down');
-                }
+                // Toggle submenu hanya ketika menu Data Wilayah diklik
+                $('#dataWilayahDropdown').on('click', function(e) {
+                    e.preventDefault(); // Mencegah default behavior link
+                    submenuOpen = !submenuOpen; // Toggle status submenu
+
+                    if (submenuOpen) {
+                        $('#subMenu').css('display', 'block'); // Tampilkan submenu
+                        $('#dropdownIcon').removeClass('bi-chevron-down').addClass('bi-chevron-up');
+                    } else {
+                        $('#subMenu').css('display', 'none'); // Sembunyikan submenu
+                        $('#dropdownIcon').removeClass('bi-chevron-up').addClass('bi-chevron-down');
+                    }
+                });
+
+                // Mencegah klik pada subMenu menutup submenu
+                $('#subMenu').on('click', function(e) {
+                    e.stopPropagation();
+                });
+
+                // Klik di luar #dataWilayahDropdown dan #subMenu menutup submenu
+                $(document).on('click', function(e) {
+                    if (submenuOpen && !$(e.target).closest('#dataWilayahDropdown, #subMenu').length) {
+                        submenuOpen = false;
+                        $('#subMenu').css('display', 'none'); // Sembunyikan submenu
+                        $('#dropdownIcon').removeClass('bi-chevron-up').addClass('bi-chevron-down');
+                    }
+                });
             });
+        }
 
-            // Mencegah klik pada subMenu menutup submenu
-            $('#subMenu').on('click', function(e) {
-                e.stopPropagation();
-            });
-
-            // Klik di luar #dataWilayahDropdown dan #subMenu menutup submenu
-            $(document).on('click', function(e) {
-                if (submenuOpen && !$(e.target).closest('#dataWilayahDropdown, #subMenu').length) {
-                    submenuOpen = false;
-                    $('#subMenu').css('display', 'none'); // Sembunyikan submenu
-                    $('#dropdownIcon').removeClass('bi-chevron-up').addClass('bi-chevron-down');
-                }
-            });
-        });
+        // Muat jQuery dan jalankan fungsi dropdown
+        loadJQuery(initializeDropdown);
     </script>
 
     {{-- fitur search --}}
