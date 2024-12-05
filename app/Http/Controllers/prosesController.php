@@ -264,6 +264,59 @@ class ProsesController extends Controller
         return view('proses.index', compact('tahun', 'selectedYear', 'groupedByCluster'));
     }
 
+    public function showProsesReplace(Request $request, $tahun)
+    {
+        try {
+            // Validasi input tahun
+            $validatedYear = intval($tahun);
+            if (!$validatedYear) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Tahun tidak valid.'
+                ], 400);
+            }
+
+            // Periksa dan hapus data di model ClusteringResult jika field 'tahun' sesuai
+            $deletedRows = ClusteringResult::where('tahun', $validatedYear)->delete();
+
+            // Jika tidak ada data yang dihapus, beri informasi kepada pengguna
+            if ($deletedRows === 0) {
+                return response()->json([
+                    'status' => 'warning',
+                    'message' => 'Tidak ada data yang ditemukan untuk tahun ini.'
+                ], 200);
+            }
+
+            $tahun = Sampah::select('tahun')
+                ->distinct()
+                ->orderBy('tahun', 'desc')
+                ->pluck('tahun')
+                ->toArray();
+
+            if ($validatedYear && in_array($validatedYear, $tahun)) {
+                $groupedByCluster = $this->performClustering($validatedYear);
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Proses clustering berhasil dilakukan.',
+                    'groupedByCluster' => $groupedByCluster
+                ], 200);
+            }else {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Tahun yang dipilih belum ada data.'
+                ], 404);
+            }
+
+        } catch (\Exception $e) {
+            // Tangani error jika ada
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Terjadi kesalahan saat melakukan proses clustering.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
     // public function showCluster(Request $request)
     // {
 
@@ -272,7 +325,7 @@ class ProsesController extends Controller
     //     // $tps = Tps::get('id');
 
     //     $selectedYear = ClusteringResult::where('tahun', $tahun)->get();
-        
+
     //     // $tpsName = $tps->where('id' , $selectedYear->where('tps_id'));
     //     $clusterTinggi = $selectedYear->where('cluster', 0);
     //     $clusterSedang = $selectedYear->where('cluster', 1);
@@ -295,7 +348,7 @@ class ProsesController extends Controller
     //         ->toArray();
 
     //     // Menangani kasus saat tahun belum dipilih atau tidak ada data
-    //     $selectedYear = $request->input('tahun');        
+    //     $selectedYear = $request->input('tahun');
 
     //     // Jika permintaan AJAX
     //     if ($request->ajax()) {

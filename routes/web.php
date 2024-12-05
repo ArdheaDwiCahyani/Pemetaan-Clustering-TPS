@@ -49,7 +49,7 @@ Route::middleware(['first.visit'])->group(function () {
         Route::delete('id/{id}', 'hapus')->name('kecamatan.hapus');
         Route::get('allKecamatan', 'allKecamatan')->name('allKecamatan');
     });
-    
+
     Route::controller(kelurahanController::class)->prefix('kelurahan')->group(function() {
         Route::get('/', 'index')->name('kelurahan');
         Route::get('tambah', 'tambah')->name('kelurahan.tambah');
@@ -63,7 +63,7 @@ Route::middleware(['first.visit'])->group(function () {
         Route::get('allKelurahan', 'allKelurahan')->name('allKelurahan');
         // Route::get('search', 'handleSearch')->name('kelurahan.search');
     });
-    
+
     Route::controller(tpsController::class)->prefix('tps')->group(function() {
         Route::get('/', 'index')->name('tps');
         Route::get('tambah', 'tambah')->name('tps.tambah');
@@ -76,7 +76,7 @@ Route::middleware(['first.visit'])->group(function () {
         Route::get('export', 'export')->name('tps.export');
         Route::get('allTps', 'allTps')->name('allTps');
     });
-    
+
     Route::controller(jarakController::class)->prefix('jarak')->group(function() {
         Route::get('/', 'index')->name('jarak');
         Route::get('tambah', 'tambah')->name('jarak.tambah');
@@ -89,7 +89,7 @@ Route::middleware(['first.visit'])->group(function () {
         Route::get('export', 'export')->name('jarak.export');
         Route::get('allJarak', 'allJarak')->name('allJarak');
     });
-    
+
     Route::controller(sampahController::class)->prefix('sampah')->group(function() {
         Route::get('/', 'index')->name('sampah');
         Route::post('tambahTahun', 'addTahun')->name('sampah.addTahun');
@@ -104,7 +104,7 @@ Route::middleware(['first.visit'])->group(function () {
         Route::get('export', 'export')->name('sampah.export');
         Route::get('allSampah', 'allSampah')->name('allSampah');
     });
-    
+
     Route::controller(parameterController::class)->prefix('parameter')->group(function() {
         Route::get('/', 'index')->name('parameter');
         Route::get('tambah', 'tambah')->name('parameter.tambah');
@@ -114,11 +114,12 @@ Route::middleware(['first.visit'])->group(function () {
         Route::delete('id/{id}', 'hapus')->name('parameter.hapus');
         Route::get('allParams', 'allParams')->name('allParams');
     });
-    
+
     Route::controller(prosesController::class)->prefix('proses')->group(function() {
         Route::get('/', 'showProses')->name('proses');
         // Route::get('/show-cluster', 'showCluster')->name('show.cluster');
         Route::post('/', 'showProses')->name('proses.cluster');
+        Route::get('/show-replace/{tahun}', 'showProsesReplace')->name('show.replace');
         Route::get('/proses/cluster', 'processClustering')->name('proses.cluster2');
         Route::get('export/{tahun}', 'exportCluster')->name('hasil.export');
     });
