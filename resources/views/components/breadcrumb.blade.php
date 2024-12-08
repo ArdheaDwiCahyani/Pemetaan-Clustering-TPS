@@ -12,7 +12,7 @@
         $subtitle = '';
         $titleRoute = '/';
     } elseif ($isPeta) {
-        $title = 'Pemetaan';
+        $title = 'Peta Cluster';
         $subtitle = '';
         $titleRoute = route('peta', ['tahun' => $selectedYear]);
     } else {

@@ -22,11 +22,7 @@ class ClusteringResult extends Model
 
     public function tps()
     {
-        return $this->belongsTo(Tps::class);  // Pastikan ada model Tps yang sesuai
+        return $this->belongsTo(Tps::class, 'tps_id');  // Pastikan ada model Tps yang sesuai
     }
 
-    public function sampah()
-    {
-        return $this->hasMany(Sampah::class, 'tps_id');  // Pastikan ada model Tps yang sesuai
-    }
 }

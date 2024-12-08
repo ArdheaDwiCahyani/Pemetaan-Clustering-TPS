@@ -38,45 +38,37 @@
 <body class="g-sidenav-show bg-gradient-primary">
     <div class="container d-flex justify-content-center align-items-center" style="height: 100vh">
         <div class="card h-auto p-4 shadow" style="width: 450px;">
-            <h4 class="text-center mb-5">Register</h4>
-            <form method="POST" action="{{ route('register') }}">
+            <h4 class="text-center mb-5">Reset Your Password</h4>
+            <form method="POST" action="{{ route('password.update') }}">
                 @csrf
-                <div class="mb-4">
-                    <input type="text" name="name" id="name" placeholder="Name"
-                        class="form-control @error('name') is-invalid @enderror" value="{{ old('name') }}">
-                    @error('name')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-                <div class="mb-4">
-                    <input type="input" name="email" id="email" placeholder="Email"
-                        class="form-control @error('email') is-invalid @enderror" value="{{ old('email') }}">
-                    @error('email')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
+                <!-- Token Reset Password -->
+                <input type="hidden" name="token" value="{{ $token }}">
+                <input type="hidden" name="email" value="{{ request()->email }}">
                 <div class="mb-4">
                     <div class="input-group">
-                        <input type="password" name="password" id="password" placeholder="Password"
-                            class="form-control @error('password') is-invalid @enderror" value="{{ old('password') }}">
-                        <span
-                            class="input-group-text @error('password') border-danger text-danger rounded-end @enderror"
-                            id="toggle-password" style="cursor: pointer;">
+                        <input type="password" name="password" id="password" class="form-control"
+                            placeholder=" New Password" required>
+                        <span class="input-group-text" id="toggle-password" style="cursor: pointer;">
                             <i class="bi bi-eye-slash" id="password-icon"></i>
                         </span>
-                        @error('password')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary w-100 mt-4">Register</button>
+                <div class="mb-5">
+                    <div class="input-group">
+                        <input type="password" name="password_confirmation" id="password_confirmation"
+                            placeholder="Confirm Password" class="form-control" required>
+                        <span class="input-group-text" id="toggle-password-conformation" style="cursor: pointer;">
+                            <i class="bi bi-eye-slash" id="password-confirmation-icon"></i>
+                        </span>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-center mt-4">       
+                    <button type="submit" class="btn btn-primary btn-user btn-block" style="width: 100%">Reset Password</button>
+                </div>
+                <div class="text-center mt-1 mb-1">
+                    <a href="{{ route('login') }}" class="text-primary" style="text-decoration: underline">Back to Login</a>
+                </div>
             </form>
-            <div class="text-center mt-1 mb-1">
-                <a href="{{ route('login.form') }}" class="text-primary" style="text-decoration: underline">Already
-                    have an account?</a>
-            </div>
-            <div class="text-center mt-1 mb-1">
-            </div>
         </div>
     </div>
 
@@ -94,6 +86,22 @@
                 passwordField.type = 'password';
                 passwordIcon.classList.remove('bi-eye');
                 passwordIcon.classList.add('bi-eye-slash');
+            }
+        });
+
+        document.getElementById('toggle-password-confirmation').addEventListener('click', function() {
+            const passwordConfirmationField = document.getElementById('password_confirmation');
+            const passwordConfirmationIcon = document.getElementById('password-confirmation-icon');
+
+            // Toggle antara password dan text
+            if (passwordConfirmationField.type === 'password') {
+                passwordConfirmationField.type = 'text';
+                passwordConfirmationIcon.classList.remove('bi-eye-slash');
+                passwordConfirmationIcon.classList.add('bi-eye');
+            } else {
+                passwordConfirmationField.type = 'password';
+                passwordConfirmationIcon.classList.remove('bi-eye');
+                passwordConfirmationIcon.classList.add('bi-eye-slash');
             }
         });
     </script>

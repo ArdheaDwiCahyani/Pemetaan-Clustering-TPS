@@ -38,33 +38,30 @@
 <body class="g-sidenav-show bg-gradient-primary">
     <div class="container d-flex justify-content-center align-items-center" style="height: 100vh">
         <div class="card h-auto p-4 shadow" style="width: 450px;">
-            <h4 class="text-center mb-5">Forgot Password</h4>
-            <form method="POST" action="{{ route('reset-pw') }}">
+            <h4 class="text-center mb-5">Reset Your Password</h4>
+            <form action="{{ route('reset-pw') }}" method="POST">
                 @csrf
-                <div class="mb-4">
-                    <input type="text" name="email" id="email" class="form-control"  placeholder="Email" required>
+                <div class="form-group">
+                    <input type="email" name="email" class="form-control"
+                        placeholder="Masukkan Email" required>
                 </div>
-                <div class="mb-4">
-                    <div class="input-group">
-                        <input type="password" name="password" id="password" class="form-control" placeholder=" New Password" required>
-                        <span class="input-group-text" id="toggle-password" style="cursor: pointer;">
-                            <i class="bi bi-eye-slash" id="password-icon"></i>
-                        </span>
-                    </div>
+                <div class="d-flex justify-content-center mt-5">
+                    <button type="submit" class="btn btn-primary btn-user" style="width: 100%">Send Password Reset Link</button>
                 </div>
-                <div class="mb-5">
-                    <div class="input-group">
-                        <input type="password" name="password_confirmation" id="password_confirmation" placeholder="Confirm Password"
-                            class="form-control" required>
-                        <span class="input-group-text" id="toggle-password-conformation" style="cursor: pointer;">
-                            <i class="bi bi-eye-slash" id="password-confirmation-icon"></i>
-                        </span>
-                    </div>
-                </div>
-                <div class="text-center mt-3 mb-3">
-                    <button type="submit" class="btn btn-primary w-100 btn-block">Confirm Password</button>
+                <div class="text-center mt-1 mb-1">
+                    <a href="{{ route('login') }}" class="text-primary" style="text-decoration: underline">Back to Login</a>
                 </div>
             </form>
+
+            <!-- Status Message -->
+            @if (session('status'))
+                <p class="text-center text-success mt-2">{{ session('status') }}</p>
+            @endif
+
+            <!-- Error Message -->
+            @error('email')
+                <p class="text-center text-danger mt-2">{{ $message }}</p>
+            @enderror
         </div>
     </div>
 

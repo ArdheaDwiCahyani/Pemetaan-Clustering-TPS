@@ -18,8 +18,13 @@ class Sampah extends Model
 
     public function parameter()
     {
-        return $this->belongsToMany(Parameter::class, 'tpsParameter')
+        return $this->belongsToMany(Parameter::class, 'tpsParameter', 'tps_id', 'params_id')
             ->withPivot('nilai_parameter', 'entity');
+    }
+
+    public function parameterSampah()
+    {
+        return $this->parameter()->wherePivot('entity', 'sampah');
     }
 
     //ambil jarak ke tpa secara otomatis menggunakan accessor

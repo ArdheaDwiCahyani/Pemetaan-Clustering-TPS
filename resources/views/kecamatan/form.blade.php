@@ -22,6 +22,7 @@
                         </div>
                         <div class="card-footer mt-0">
                             <button type="submit" class="btn btn-primary bs-btn-active-bg">Simpan</button>
+                            <a href="{{ route('kecamatan') }}" class="btn btn-outline-primary ms-1">Kembali</a>
                         </div>
                     </div>
                 </div>

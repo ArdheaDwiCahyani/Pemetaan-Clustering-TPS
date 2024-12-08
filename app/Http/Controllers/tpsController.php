@@ -33,7 +33,7 @@ class tpsController extends Controller
         $tpsArray = $allTps->map(function ($row) use ($allParameter) {
 
             $tpsData = [
-                'no' => $row->id,  // No bisa menggunakan id atau yang lain
+                'id' => $row->id,  // No bisa menggunakan id atau yang lain
                 'nama_tps' => $row->namaTPS,
                 'nama_kelurahan' => $row->kelurahan->namaKelurahan, // Ambil nama kelurahan yang terkait dengan TPS
                 'parameters' => []
@@ -49,7 +49,6 @@ class tpsController extends Controller
                     ];
                 }
             }
-
             return $tpsData;
         });
 
@@ -83,14 +82,12 @@ class tpsController extends Controller
         $latitude = round($validatedData['latitude'], 8);  // Menggunakan 8 angka desimal
         $longitude = round($validatedData['longitude'], 8);  // Menggunakan 8 angka desimal
 
-
         $tps = Tps::create([
             'namaTPS' => $validatedData['namaTPS'],
             'kelurahans_id' => $validatedData['kelurahans_id'],
             'latitude' => $latitude,
             'longitude' => $longitude,
         ]);
-
 
         //menyimpan parameter dengan nilai ke tabel pivot (tpsParameter)
         $parameterData = [];

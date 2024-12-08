@@ -13,7 +13,7 @@
                                 <input type="file" class="form-control" name="file" required>
                             </div>
                             <button type="submit" class="btn btn-primary">Import</button>
-                            <a href="{{ route('kelurahan') }}" class="btn btn-outline-primary ml-5">Kembali</a>
+                            <a href="{{ route('kelurahan') }}" class="btn btn-outline-primary ms-1">Kembali</a>
                         </div>
                     </div>
                 </div>

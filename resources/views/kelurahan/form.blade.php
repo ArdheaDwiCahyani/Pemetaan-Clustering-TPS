@@ -33,8 +33,9 @@
                                 </small>
                             </div>
                         </div>
-                        <div class="card-footer pt-0">
+                        <div class="card-footer">
                             <button type="submit" class="btn btn-primary bs-btn-active-bg">Simpan</button>
+                            <a href="{{ route('kelurahan') }}" class="btn btn-outline-primary ms-1">Kembali</a>
                         </div>
                     </div>
                 </div>

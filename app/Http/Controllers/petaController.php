@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ClusteringResult;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class PetaController extends Controller
@@ -23,27 +24,26 @@ class PetaController extends Controller
         return view('peta.map', compact('tahun', 'selectedYear'));
     }
 
-
     public function geojsonData($tahun)
     {
-        $results = ClusteringResult::with(['tps.kelurahan', 'sampah.parameter']) // Eager load 'tps', 'kelurahan', dan 'sampah'
-            ->where('tahun', $tahun)
-            ->get();
+        $results = ClusteringResult::with([
+            'tps.kelurahan',           // Relasi ke kelurahan
+            'tps.parameterTps',        // Parameter TPS
+            'tps.sampah.parameterSampah', // Parameter Sampah melalui TPS
+        ])->where('tahun', $tahun)->get();
 
         $features = $results->map(function ($result) {
-            // Ambil volume dari sampah yang terkait dengan tps
-            $volume_sampah = $result->tps->parameterSampah()
+            $sampah = $result->tps->sampah->first(); // Ambil data sampah terkait TPS
+            $volume_sampah = $sampah
+                ? $sampah->parameterSampah()
                 ->where('namaParameter', 'Volume Sampah')
-                ->first()
-                ->pivot->nilai_parameter ?? null;
-            // $volume_sampah = $volume_sampah ? $volume_sampah->pivot->nilai_parameter : null;
+                ->first()->pivot->nilai_parameter ?? null
+                : null;
 
             $jarak_ke_tpa = $result->tps->parameterTps()
                 ->where('namaParameter', 'Jarak ke TPA')
-                ->first();
-            $jarak_ke_tpa = $jarak_ke_tpa ? $jarak_ke_tpa->pivot->nilai_parameter : null;
+                ->first()->pivot->nilai_parameter ?? null;
 
-            $sampah = $result->tps->sampah->first();
             $rata_rata_jarak = $sampah ? $sampah->rata_rata_jarak : null;
 
             return [
@@ -55,9 +55,9 @@ class PetaController extends Controller
                 'properties' => [
                     'namaTPS' => $result->tps->namaTPS,
                     'kelurahan' => $result->tps->kelurahan->namaKelurahan ?? null,
-                    'volume' => $volume_sampah,  // Volume sampah
-                    'jarak' => $jarak_ke_tpa,  // Jarak ke TPA
-                    'rata_rata_jarak' => $rata_rata_jarak,  // Rata-rata jarak
+                    'volume' => $volume_sampah,
+                    'jarak' => $jarak_ke_tpa,
+                    'rata_rata_jarak' => $rata_rata_jarak,
                     'cluster' => $result->cluster,
                     'prioritas' => $result->prioritas,
                 ],

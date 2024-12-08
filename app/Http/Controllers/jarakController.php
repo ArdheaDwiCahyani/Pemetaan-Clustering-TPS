@@ -36,6 +36,7 @@ class jarakController extends Controller
         $jarakData = $jarak->map(function ($row, $index) {
             return [
                 'no' => $index + 1,
+                'id' => $row->id,
                 'tps_asal' => $row->tpsAsal->namaTPS,
                 'tps_tujuan' => $row->tpsTujuan->namaTPS,
                 'jarak' => $row->jarak,

@@ -38,7 +38,7 @@
 <body class="g-sidenav-show bg-gradient-primary">
     <div class="container d-flex justify-content-center align-items-center" style="height: 100vh">
         <div class="card h-auto p-4 shadow" style="width: 450px;">
-            <h4 class="text-center mb-5">Welcome!</h4>
+            <h4 class="text-center mb-5">Welcome !</h4>
             <form method="POST" action="{{ route('login') }}">
                 @csrf
                 <div class="mb-4">
@@ -68,10 +68,6 @@
                 </div>
                 <button type="submit" class="btn btn-primary w-100 mt-1">Login</button>
             </form>
-            <div class="text-center mt-1 mb-1">
-                <a href="{{ route('register.form') }}" class="text-primary" style="text-decoration: underline">Don't
-                    have an account?</a>
-            </div>
         </div>
     </div>
 

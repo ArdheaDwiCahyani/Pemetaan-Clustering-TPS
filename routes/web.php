@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\adminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\dashboardController;
 use App\Http\Controllers\sampahController;
@@ -30,12 +31,16 @@ use Maatwebsite\Excel\Row;
 Route::controller(AuthController::class)->group(function () {
     Route::get('/login', 'showLoginForm')->name('login.form');
     Route::post('/login', 'login')->name('login');
-    Route::get('/register', 'showRegisterForm')->name('register.form');
-    Route::post('/register', 'register')->name('register');
     Route::post('/logout', 'logout')->name('logout');
     Route::get('/forgot-pw', 'showForgotPassword')->name('forgot-pw');
-    Route::post('/forgot-pw', 'reset')->name('reset-pw');
+    Route::post('/reset-pw', 'sendResetLink')->name('reset-pw');
+    Route::get('/password/reset/{token}', function (string $token) {
+        return view('auth.reset-pw', ['token' => $token]);
+    })->name('password.reset');
+    Route::post('password/reset', 'resetPassword')->name('password.update');
+    Route::get('send-email', 'index')->name('send-email');
 });
+
 
 Route::middleware(['first.visit'])->group(function () {
     Route::get('/', [dashboardController::class, 'index'])->name('dashboard');
@@ -132,13 +137,15 @@ Route::middleware(['first.visit'])->group(function () {
 
     Route::get('/search', [SearchController::class, 'search'])->name('search');
 
+    Route::controller(adminController::class)->prefix('user')->middleware('superadmin')->group(function() {
+        Route::get('/', 'index')->name('user');
+        Route::get('allUser', 'allUser')->name('allUser');
+        Route::get('tambah', 'tambah')->name('user.tambah');
+        Route::post('tambah', 'simpan')->name('user.tambah.simpan');
+        Route::get('edit/{id}', 'edit')->name('user.edit');
+        Route::post('edit/{id}', 'update')->name('user.tambah.update');
+        Route::delete('hapus/{id}', 'hapus')->name('user.hapus');
+    });
+
 });
-
-
-
-
-// Route::get('/normalize', [prosesController::class, 'normalizeSampahData']);
-
-// Route::get('/performClustering', [prosesController::class, 'performClustering']);
-
 
