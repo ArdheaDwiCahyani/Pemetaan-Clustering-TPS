@@ -131,25 +131,6 @@
     </div>
 
 
-
-    {{-- <script>
-        // Event listener untuk mendeteksi perubahan pada elemen select tahun
-        document.getElementById('tahun').addEventListener('change', function() {
-            var selectedYear = this.value;
-            var prosesBtn = document.getElementById('proses-btn');
-            var exportBtn = document.getElementById('export-btn');
-
-            // Jika tahun dipilih, aktifkan tombol
-            if (selectedYear) {
-                prosesBtn.removeAttribute('disabled');
-                exportBtn.removeAttribute('disabled');
-            } else {
-                prosesBtn.setAttribute('disabled', 'disabled');
-                exportBtn.setAttribute('disabled', 'disabled');
-            }
-        });
-    </script> --}}
-
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <script>
@@ -191,7 +172,7 @@
                                 // Ensure selectedYear is available here
                                 const url = '/proses/show-replace/' + selectedYear;
                                 console.log(
-                                url); // Log URL yang dibentuk// Log the generated URL
+                                    url); // Log URL yang dibentuk// Log the generated URL
 
                                 $.ajax({
                                     url: url,
@@ -201,47 +182,51 @@
                                             response.groupedByCluster) {
                                             var container = $(
                                                 '#hasil-clustering-container'
-                                            );
+                                                );
                                             container
-                                                .empty(); // Menghapus konten lama
+                                        .empty(); // Menghapus konten lama
 
-                                            response.groupedByCluster.forEach(
-                                                function(clusterData,
-                                                    clusterIndex) {
+                                            // Gunakan Object.entries untuk mengiterasi groupedByCluster
+                                            Object.entries(response
+                                                .groupedByCluster).forEach(
+                                                function([clusterName,
+                                                    clusterData
+                                                ], clusterIndex) {
                                                     var clusterHTML = `
-                                        <h3>Cluster ${clusterIndex + 1}</h3>
-                                        <div class="table-responsive p-0">
-                                            <table class="table table align-items-center mb-0" cellspacing="0">
-                                                <thead>
-                                                    <tr>
-                                                        <th style="width: 100px;" class="text-dark text-center text-sm font-weight-medium">No</th>
-                                                        <th class="text-dark text-sm font-weight-medium px-0">Nama TPS</th>
-                                                        <th class="text-dark text-sm text-center font-weight-medium">Volume Sampah <br>(Ton)</th>
-                                                        <th class="text-dark text-sm text-center font-weight-medium">Jarak ke TPA <br>(km)</th>
-                                                        <th class="text-dark text-sm text-center font-weight-medium">Rata-Rata Jarak <br>(km)</th>
-                                                        <th class="text-dark text-sm text-center font-weight-medium">Cluster</th>
-                                                        <th class="text-dark text-sm text-center font-weight-medium">Prioritas</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    ${clusterData.map((data, index) => `
-                                                                <tr>
-                                                                    <td class="text-dark text-center align-middle text-sm">${index + 1}</td>
-                                                                    <td class="text-dark align-middle text-sm text-wrap">${data.namaTPS}</td>
-                                                                    <td class="text-dark text-center align-middle text-sm">${data.volume}</td>
-                                                                    <td class="text-dark text-center align-middle text-sm">${data.jarak}</td>
-                                                                    <td class="text-dark text-center align-middle text-sm">${data.rata_rata_jarak}</td>
-                                                                    <td class="text-dark text-center align-middle text-sm">Cluster ${data.cluster + 1}</td>
-                                                                    <td class="text-dark text-center align-middle text-sm">${data.prioritas}</td>
-                                                                </tr>
-                                                            `).join('')}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    `;
+                                                        <h3>Cluster ${clusterIndex + 1}</h3>
+                                                        <div class="table-responsive p-0">
+                                                            <table class="table table align-items-center mb-0" cellspacing="0">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th style="width: 100px;" class="text-dark text-center text-sm font-weight-medium">No</th>
+                                                                        <th class="text-dark text-sm font-weight-medium px-0">Nama TPS</th>
+                                                                        <th class="text-dark text-sm text-center font-weight-medium">Volume Sampah <br>(Ton)</th>
+                                                                        <th class="text-dark text-sm text-center font-weight-medium">Jarak ke TPA <br>(km)</th>
+                                                                        <th class="text-dark text-sm text-center font-weight-medium">Rata-Rata Jarak <br>(km)</th>
+                                                                        <th class="text-dark text-sm text-center font-weight-medium">Cluster</th>
+                                                                        <th class="text-dark text-sm text-center font-weight-medium">Prioritas</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    ${clusterData.map((data, index) => `
+                                                                            <tr>
+                                                                                <td class="text-dark text-center align-middle text-sm">${index + 1}</td>
+                                                                                <td class="text-dark align-middle text-sm text-wrap">${data.namaTPS}</td>
+                                                                                <td class="text-dark text-center align-middle text-sm">${data.volume}</td>
+                                                                                <td class="text-dark text-center align-middle text-sm">${data.jarak}</td>
+                                                                                <td class="text-dark text-center align-middle text-sm">${data.rata_rata_jarak}</td>
+                                                                                <td class="text-dark text-center align-middle text-sm">Cluster ${data.cluster + 1}</td>
+                                                                                <td class="text-dark text-center align-middle text-sm">${data.prioritas}</td>
+                                                                            </tr>
+                                                                        `).join('')}
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    `;
                                                     container.append(
                                                         clusterHTML);
-                                                });
+                                                }
+                                            );
 
                                             // Menampilkan pesan sukses
                                             Swal.fire({
@@ -251,8 +236,6 @@
                                                 confirmButtonText: 'OK'
                                             });
 
-                                            // Tetap menyembunyikan tombol proses-btn
-                                            // $('#proses-btn').hide();
                                         } else {
                                             Swal.fire('Gagal!', response
                                                 .message ||
@@ -302,57 +285,56 @@
                                 var groupedData = response.groupedByCluster;
                                 var tableHTML = '';
 
-                                // Loop untuk setiap kelompok data
-                                groupedData.forEach(function(clusterData, index) {
-                                    tableHTML += `
-                                <h3>Cluster ${index + 1}</h3>
-                                <table class="table table align-items-center mb-0" cellspacing="0" id="hasil-clustering-${index}">
-                                    <thead>
-                                        <tr>
-                                            <th style="width: 100px;" class="text-dark text-center text-sm font-weight-medium">No</th>
-                                            <th class="text-dark text-sm font-weight-medium px-0">Nama TPS</th>
-                                            <th class="text-dark text-sm text-center font-weight-medium">Volume Sampah <br>(Ton)</th>
-                                            <th class="text-dark text-sm text-center font-weight-medium">Jarak ke TPA <br>(km)</th>
-                                            <th class="text-dark text-sm text-center font-weight-medium">Rata-Rata Jarak <br>(km)</th>
-                                            <th class="text-dark text-sm text-center font-weight-medium">Cluster</th>
-                                            <th class="text-dark text-sm text-center font-weight-medium">Prioritas</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                            `;
+                                // Loop untuk setiap cluster dalam groupedByCluster
+                                Object.keys(groupedData).forEach(function(clusterKey, index) {
+                                    var clusterData = groupedData[clusterKey];
 
-                                    // Loop untuk memasukkan baris ke dalam tbody
+                                    tableHTML += `
+                                        <h3>Cluster ${index + 1}</h3>
+                                        <table class="table table align-items-center mb-0" cellspacing="0" id="hasil-clustering-${index}">
+                                            <thead>
+                                                <tr>
+                                                    <th style="width: 100px;" class="text-dark text-center text-sm font-weight-medium">No</th>
+                                                    <th class="text-dark text-sm font-weight-medium px-0">Nama TPS</th>
+                                                    <th class="text-dark text-sm text-center font-weight-medium">Volume Sampah <br>(Ton)</th>
+                                                    <th class="text-dark text-sm text-center font-weight-medium">Jarak ke TPA <br>(km)</th>
+                                                    <th class="text-dark text-sm text-center font-weight-medium">Rata-Rata Jarak <br>(km)</th>
+                                                    <th class="text-dark text-sm text-center font-weight-medium">Cluster</th>
+                                                    <th class="text-dark text-sm text-center font-weight-medium">Prioritas</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                    `;
+
+                                    // Loop untuk memasukkan data TPS ke dalam tabel
                                     clusterData.forEach(function(tps, subIndex) {
                                         tableHTML += `
-                                    <tr>
-                                        <td class="text-center">${subIndex + 1}</td>
-                                        <td>${tps.namaTPS}</td>
-                                        <td class="text-center">${tps.volume}</td>
-                                        <td class="text-center">${tps.jarak}</td>
-                                        <td class="text-center">${tps.rata_rata_jarak}</td>
-                                        <td class="text-center">${tps.cluster+1}</td>
-                                        <td class="text-center">${tps.prioritas}</td>
-                                    </tr>
-                                `;
+                                            <tr>
+                                                <td class="text-center">${subIndex + 1}</td>
+                                                <td>${tps.namaTPS}</td>
+                                                <td class="text-center">${tps.volume}</td>
+                                                <td class="text-center">${tps.jarak}</td>
+                                                <td class="text-center">${tps.rata_rata_jarak}</td>
+                                                <td class="text-center">${index + 1}</td>
+                                                <td class="text-center">-</td>
+                                            </tr>
+                                        `;
                                     });
 
-                                    // Menutup tbody dan tabel
                                     tableHTML += `
-                                </tbody>
-                            </table>
-                            `;
-
+                                            </tbody>
+                                        </table>
+                                    `;
                                 });
 
-                                // Menambahkan tabel yang telah dibuat ke dalam div dengan id "card-body"
+                                // Menambahkan tabel ke dalam div dengan id "card-body"
                                 $('#card-body').html(tableHTML);
-
                             } else {
                                 $('#card-body').html(
-                                    `
-                                <p class="mt-3">Belum melakukan proses clustering. Silahkan pilih tahun dan klik tombol 'Proses'.</p>`
+                                    `<p class="mt-3">Belum melakukan proses clustering. Silahkan pilih tahun dan klik tombol 'Proses'.</p>`
                                 );
                             }
+
                         },
                         error: function(xhr, error) {
                             alert('Terjadi kesalahan dalam memproses permintaan.');
@@ -361,55 +343,6 @@
                 }
             });
 
-            // Event listener untuk tombol proses
-            // $('#proses-btn').on('click', function() {
-            //     var selectedYear = $('#tahun').val();
-            //     if (selectedYear) {
-            //         // Menampilkan SweetAlert konfirmasi sebelum proses
-            //         Swal.fire({
-            //             title: 'Apakah Anda yakin?',
-            //             text: "Proses clustering akan dijalankan!",
-            //             icon: 'warning',
-            //             showCancelButton: true,
-            //             confirmButtonText: 'Ya, Proses',
-            //             cancelButtonText: 'Batal'
-            //         }).then((result) => {
-            //             if (result.isConfirmed) {
-            //                 // Kirim permintaan AJAX untuk memulai clustering
-            //                 $.ajax({
-            //                     url: '{{ route('proses.cluster2') }}',
-            //                     method: 'POST',
-            //                     data: {
-            //                         _token: '{{ csrf_token() }}',
-            //                         tahun: selectedYear
-            //                     },
-            //                     success: function(response) {
-            //                         if (response.status === 'success') {
-            //                             Swal.fire(
-            //                                 'Berhasil!',
-            //                                 'Proses clustering selesai.',
-            //                                 'success'
-            //                             );
-            //                         } else {
-            //                             Swal.fire(
-            //                                 'Gagal!',
-            //                                 response.message,
-            //                                 'error'
-            //                             );
-            //                         }
-            //                     },
-            //                     error: function() {
-            //                         Swal.fire(
-            //                             'Gagal!',
-            //                             'Terjadi kesalahan dalam memproses permintaan.',
-            //                             'error'
-            //                         );
-            //                     }
-            //                 });
-            //             }
-            //         });
-            //     }
-            // });
         });
     </script>
 
