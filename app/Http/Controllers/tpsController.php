@@ -16,51 +16,35 @@ class tpsController extends Controller
 {
     public function index(Request $request)
     {
-        $perPage = $request->input('per_page', 4);
 
-        $tps = Tps::with(['parameter', 'kelurahan'])->paginate($perPage);
-        $parameter = Parameter::all();
+        $tps = Tps::with(['kelurahan']);
         $kelurahan = Kelurahan::all();
 
-        return view('tps.index', compact('tps', 'parameter', 'kelurahan'));
+        return view('tps.index', compact('tps', 'kelurahan'));
     }
 
     public function allTps()
     {
         $allTps = Tps::all();
-        $allParameter = Parameter::all();
 
-        $tpsArray = $allTps->map(function ($row) use ($allParameter) {
-
-            $tpsData = [
-                'id' => $row->id,  // No bisa menggunakan id atau yang lain
-                'nama_tps' => $row->namaTPS,
-                'nama_kelurahan' => $row->kelurahan->namaKelurahan, // Ambil nama kelurahan yang terkait dengan TPS
-                'parameters' => []
+        $response = $allTps->map(function ($tps) {
+            $kelurahan = Kelurahan::find($tps->kelurahans_id);
+            return [
+                'id' => $tps->id,
+                'nama_tps' => $tps->namaTPS,
+                'nama_kelurahan' => $kelurahan ? $kelurahan->namaKelurahan : 'Tidak Diketahui',
+                'jarak_tpa' => $tps->jarakTPA,
             ];
-
-            // Loop parameter untuk mencari nilai 'Jarak ke TPA'
-            foreach ($allParameter as $param) {
-                if ($param->namaParameter == 'Jarak ke TPA') {
-                    $nilaiParameter = $row->parameter->where('pivot.entity', 'tps')->first()->pivot->nilai_parameter ?? 'N/A';
-                    $tpsData['parameters'][] = [
-                        'nama_parameter' => $param->namaParameter,
-                        'jarak_tpa' => $nilaiParameter
-                    ];
-                }
-            }
-            return $tpsData;
         });
 
-        return response()->json($tpsArray);
+        return response()->json($response);
     }
 
     public function tambah()
     {
         $kelurahan = Kelurahan::all();
-        $parameter = Parameter::all();
 
-        return view('tps.form', compact('kelurahan', 'parameter'));
+        return view('tps.form', compact('kelurahan'));
     }
 
     public function simpan(Request $request)
@@ -69,14 +53,10 @@ class tpsController extends Controller
         $validatedData = $request->validate([
             'namaTPS' => 'required|string|max:100',
             'kelurahans_id' => 'required|exists:kelurahans,id',
-            'nilai_parameter' => 'required|array',
-            'nilai_parameter.*' => 'numeric',
-            'params_id' => 'required|array',
-            'params_id.*' => 'exists:params,id',
             'latitude' => 'required|numeric|min:-90|max:90',
             'longitude' => 'required|numeric|min:-180|max:180',
+            'jarakTPA' => 'required|numeric',
         ]);
-
 
         // Pastikan koordinat dibatasi dengan presisi tertentu sebelum disimpan
         $latitude = round($validatedData['latitude'], 8);  // Menggunakan 8 angka desimal
@@ -87,38 +67,18 @@ class tpsController extends Controller
             'kelurahans_id' => $validatedData['kelurahans_id'],
             'latitude' => $latitude,
             'longitude' => $longitude,
+            'jarakTPA' => $validatedData['jarakTPA'],
         ]);
-
-        //menyimpan parameter dengan nilai ke tabel pivot (tpsParameter)
-        $parameterData = [];
-        foreach ($validatedData['params_id'] as $index => $params_id) {
-            //ambil data berdasarkan id
-            $parameter = Parameter::find($params_id);
-
-            //hanya simpan nilai jika parameter adalah 'jarak ke tpa'
-            if ($parameter) {
-                //simpan nilai ke pivot untuk setiap parameter, termasuk "Jarak ke TPA"
-                $parameterData[$params_id] = [
-                    'nilai_parameter' => $validatedData['nilai_parameter'][$index],
-                    'entity' => 'tps'
-                ];
-            }
-        }
-
-        if (!empty($parameterData)) {
-            $tps->parameter()->attach($parameterData);
-        }
 
         return redirect()->route('tps');
     }
 
     public function edit($id)
     {
-        $tps = Tps::with(['parameter', 'kelurahan'])->find($id);
+        $tps = Tps::with(['kelurahan'])->find($id);
         $kelurahan = Kelurahan::all();
-        $parameter = Parameter::all();
 
-        return view('tps.formEdit', compact('tps', 'kelurahan', 'parameter'));
+        return view('tps.formEdit', compact('tps', 'kelurahan'));
     }
 
     public function update(Request $request, $id)
@@ -126,12 +86,9 @@ class tpsController extends Controller
         $validatedData = $request->validate([
             'namaTPS' => 'required|string|max:100',
             'kelurahans_id' => 'required|exists:kelurahans,id',
-            'nilai_parameter' => 'required|array',
-            'nilai_parameter.*' => 'numeric',
-            'params_id' => 'required|array',
-            'params_id.*' => 'exists:params,id',
             'latitude' => 'required|numeric|min:-90|max:90',
             'longitude' => 'required|numeric|min:-180|max:180',
+            'jarakTPA' => 'required|numeric',
         ]);
 
         $tps = Tps::find($id);
@@ -140,30 +97,8 @@ class tpsController extends Controller
             'kelurahans_id' => $validatedData['kelurahans_id'],
             'latitude' => $validatedData['latitude'],
             'longitude' => $validatedData['longitude'],
+            'jarakTPA' => $validatedData['jarakTPA'],
         ]);
-
-        foreach ($validatedData['params_id'] as $index => $params_id) {
-            // Ambil parameter berdasarkan id
-            $parameter = Parameter::find($params_id);
-
-            // Jika parameter ditemukan, lakukan pembaruan
-            if ($parameter) {
-                // Tentukan entity sebagai 'tps' jika ini adalah parameter untuk Tps
-                if ($parameter->namaParameter == 'Jarak ke TPA') {
-                    $tps->parameter()->updateExistingPivot($params_id, [
-                        'nilai_parameter' => $validatedData['nilai_parameter'][$index],
-                        'entity' => 'tps', // Entity 'tps' untuk jarak ke TPA
-                    ]);
-                }
-                // Jika parameter adalah Volume Sampah, lakukan pembaruan terpisah untuk sampah
-                if ($parameter->namaParameter == 'Volume Sampah') {
-                    $tps->parameter()->updateExistingPivot($params_id, [
-                        'nilai_parameter' => $validatedData['nilai_parameter'][$index],
-                        'entity' => 'sampah', // Entity 'tps' untuk volume sampah
-                    ]);
-                }
-            }
-        }
 
         return redirect()->route('tps');
     }

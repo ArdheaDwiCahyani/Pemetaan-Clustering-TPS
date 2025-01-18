@@ -172,12 +172,6 @@
                         dataSrc: function(json) {
                             return json.map((item, index) => {
                                 item.no = index + 1;
-                                // Extracting 'jarak_tpa' from the 'parameters' array
-                                if (item.parameters && item.parameters.length > 0) {
-                                    item.jarak_tpa = item.parameters[0].jarak_tpa; // Assuming 'Jarak ke TPA' is always the first element
-                                } else {
-                                    item.jarak_tpa = 'N/A'; // Default value if no parameters are found
-                                }
                                 return item;
                             })
                         }
@@ -202,13 +196,11 @@
                             data: 'nama_kelurahan',
                             title: 'Kelurahan',
                             className: 'text-left text-dark text-sm font-weight-medium'
-                            // headerClassName: 'header-cell text-center text-primary font-weight-bold'
                         },
                         {
                             data: 'jarak_tpa',
                             title: 'Jarak ke TPA (Km)',
                             className: 'text-center text-dark text-sm font-weight-medium'
-                            // headerClassName: 'header-cell text-center text-primary font-weight-bold'
                         },
                         {
                             title: "Action",

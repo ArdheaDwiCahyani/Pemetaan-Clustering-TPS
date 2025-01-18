@@ -219,6 +219,7 @@
 
         //mengirim link a href secara dinamis
         document.addEventListener("DOMContentLoaded", function() {
+            
             // Ambil tombol berdasarkan ID atau kelas
             const importBtn = document.getElementById('import-btn');
             const addBtn = document.getElementById('add-btn');
@@ -228,9 +229,10 @@
             const selectedYear = localStorage.getItem('selectedYear');
 
             if (selectedYear) {
+
                 // Setel href dinamis berdasarkan nilai tahun dari localStorage untuk tombol import
                 if (importBtn) {
-                    importBtn.href = "{{ route('sampah.import', ['tahun' => '']) }}" + selectedYear;
+                    importBtn.href = "{{ route('sampah.import', ['tahun' => '']) }}" + selectedYear; 
                 }
 
                 // Setel href dinamis untuk tombol tambah (misalnya menuju halaman tambah berdasarkan tahun)

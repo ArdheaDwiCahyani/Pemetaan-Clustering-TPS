@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\ClusteringResult;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class PetaController extends Controller
 {
@@ -27,22 +25,16 @@ class PetaController extends Controller
     public function geojsonData($tahun)
     {
         $results = ClusteringResult::with([
-            'tps.kelurahan',           // Relasi ke kelurahan
-            'tps.parameterTps',        // Parameter TPS
-            'tps.sampah.parameterSampah', // Parameter Sampah melalui TPS
+            'tps.kelurahan',   // Relasi ke kelurahan
+            'tps',        // Parameter TPS
+            'tps.sampah', // Parameter Sampah melalui TPS
         ])->where('tahun', $tahun)->get();
 
         $features = $results->map(function ($result) {
             $sampah = $result->tps->sampah->first(); // Ambil data sampah terkait TPS
-            $volume_sampah = $sampah
-                ? $sampah->parameterSampah()
-                ->where('namaParameter', 'Volume Sampah')
-                ->first()->pivot->nilai_parameter ?? null
-                : null;
+            $volume_sampah = $sampah ? $sampah->volumeSampah : null;
 
-            $jarak_ke_tpa = $result->tps->parameterTps()
-                ->where('namaParameter', 'Jarak ke TPA')
-                ->first()->pivot->nilai_parameter ?? null;
+            $jarak_ke_tpa = $result ? $result->tps->first()->jarakTPA : null;
 
             $rata_rata_jarak = $sampah ? $sampah->rata_rata_jarak : null;
 

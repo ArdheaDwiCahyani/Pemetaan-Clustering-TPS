@@ -10,29 +10,11 @@ class Tps extends Model
 {
     protected $table = 'tps';
     protected $primaryKey = 'id';
-    protected $fillable = ['namaTPS', 'kelurahans_id', 'tahun', 'latitude', 'longitude'];
+    protected $fillable = ['namaTPS', 'kelurahans_id', 'jarakTPA', 'latitude', 'longitude'];
 
     public function kelurahan()
     {
         return $this->belongsTo(Kelurahan::class, 'kelurahans_id', 'id');
-    }
-
-    public function parameter()
-    {
-        return $this->belongsToMany(Parameter::class, 'tpsParameter', 'tps_id', 'params_id')
-            ->withPivot('nilai_parameter', 'entity');
-    }
-
-    //relasi u/ parameter dg entitas tps
-    public function parameterTps()
-    {
-        return $this->parameter()->wherePivot('entity', 'tps');
-    }
-
-    //relasi u/ parameter dg entitas sampah
-    public function parameterSampah()
-    {
-        return $this->parameter()->wherePivot('entity', 'sampah');
     }
 
     public function sampah()

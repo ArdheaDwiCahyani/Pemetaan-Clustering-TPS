@@ -127,6 +127,7 @@ Route::middleware(['first.visit'])->group(function () {
         Route::get('/show-replace/{tahun}', 'showProsesReplace')->name('show.replace');
         Route::get('/proses/cluster', 'processClustering')->name('proses.cluster2');
         Route::get('export/{tahun}', 'exportCluster')->name('hasil.export');
+        Route::get('perform/{tahun}', 'performClustering')->name('perform');
     });
 
     Route::controller(PetaController::class)->prefix('peta')->group(function() {
@@ -134,8 +135,6 @@ Route::middleware(['first.visit'])->group(function () {
         Route::get('/showMap', 'showMap')->name('pemetaan');
         Route::get('/geojson/{tahun}', 'geojsonData')->name('geojsonData');
     });
-
-    Route::get('/search', [SearchController::class, 'search'])->name('search');
 
     Route::controller(adminController::class)->prefix('user')->middleware('superadmin')->group(function() {
         Route::get('/', 'index')->name('user');

@@ -11,7 +11,7 @@
                     <div class="card shadow mb-0">
                         <div class="card-body2 mb-0">
                             <!-- Pesan Error untuk Kombinasi tps_id dan Tahun -->
-                            @if($errors->has('tps_tahun_exists'))
+                            @if ($errors->has('tps_tahun_exists'))
                                 <div class="alert alert-danger">
                                     {{ $errors->first('tps_tahun_exists') }}
                                 </div>
@@ -32,18 +32,13 @@
                                 <input type="number" class="form-control" id="tahun" name="tahun" min="2000"
                                     max="2099" value="{{ isset($sampah) ? $sampah->tahun : '' }}">
                             </div>
-                            @foreach ($parameter as $param)
-                                @if ($param->namaParameter == 'Volume Sampah')
-                                    <div class="form-group mb-4">
-                                        <label for="volume_sampah_{{ $param->id }}"
-                                            class="text-dark text-sm font-weight-medium">{{ $param->namaParameter }} (Ton)</label>
-                                        <input type="number" name="volume_sampah[{{ $param->id }}]"
-                                            id="volume_sampah[{{ $param->id }}]" class="form-control" step="any"
-                                            required
-                                            value="{{ $sampah->tps->parameter->where('id', $param->id)->where('pivot.entity', 'sampah')->first()->pivot->nilai_parameter ?? '' }}">
-                                    </div>
-                                @endif
-                            @endforeach
+                            <div class="form-group mb-4">
+                                <label for="volumeSampah" class="text-dark text-sm font-weight-medium">Volume Sampah
+                                    (Ton)</label>
+                                <input type="number" name="volumeSampah" id="volumeSampah"
+                                    class="form-control choices-single" value="{{ isset($sampah) ? $sampah->volumeSampah : '' }}" required>
+                                </input>
+                            </div>
                         </div>
                         <div class="card-footer mt-0">
                             <button type="submit" class="btn btn-primary bs-btn-active-bg">Simpan</button>

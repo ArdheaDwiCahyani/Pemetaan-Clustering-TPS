@@ -30,18 +30,9 @@ class TpsImport implements ToModel, WithHeadingRow
             'kelurahans_id' => $kelurahan->id,
             'longitude' => $row['longitude'],
             'latitude' => $row['latitude'],
+            'jarakTPA' => $row['jarak_ke_tpa'],
         ]);
 
-        //mendapatkan parameter jarak ke tpa
-        $parameter = Parameter::where('namaParameter', 'Jarak ke TPA')->first();
-
-        if ($parameter) {
-            //menyimpan nilai jarak ke pivot table 'tpsParameter'
-            $tps->parameter()->attach($parameter->id, [
-                'nilai_parameter' => $row['jarak_ke_tpa'],
-                'entity' =>'tps',
-            ]);
-        }
         return $tps;
     }
 }

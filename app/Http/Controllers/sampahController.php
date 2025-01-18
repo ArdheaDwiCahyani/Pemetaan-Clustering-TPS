@@ -30,12 +30,8 @@ class sampahController extends Controller
                 'id' => $data->id ?? null,
                 'nama_tps' => $data->tps->namaTPS ?? null,
                 'tahun' => $data->tahun ?? null,
-                'volume_sampah' => $data->tps->parameter
-                    ->where('pivot.entity', 'sampah')
-                    ->first()
-                    ->pivot
-                    ->nilai_parameter ?? null,
-                'jarak_tpa' => $data->jarak_tpa ?? null,
+                'volume_sampah' => $data->volumeSampah,
+                'jarak_tpa' => $data->tps->jarakTPA ?? null,
                 'rata_rata_jarak' => $data->rata_rata_jarak ?? null,
             ];
         });
@@ -49,12 +45,11 @@ class sampahController extends Controller
         $tahun = $request->input('tahun');
 
         // Ambil data lainnya
-        $tps = Tps::with('parameter')->get();
-        $parameter = Parameter::all();
+        $tps = Tps::all();
         $tahunList = Sampah::select('tahun')->distinct()->get();
 
         // Pass data ke view, termasuk tahun yang dipilih
-        return view('sampah.form', compact('tps', 'parameter', 'tahunList', 'tahun'));
+        return view('sampah.form', compact('tps', 'tahun'));
     }
 
     public function simpan(Request $request)
@@ -62,8 +57,7 @@ class sampahController extends Controller
         $validatedData = $request->validate([
             'tps_id' => 'required|exists:tps,id',
             'tahun' => 'required|digits:4|numeric',
-            'volume_sampah' => 'required|array',
-            'volume.*' => 'numeric',
+            'volumeSampah' => 'required|numeric',
         ]);
 
         // Cek apakah kombinasi tps_id dan tahun sudah ada
@@ -81,47 +75,20 @@ class sampahController extends Controller
         $sampah = Sampah::create([
             'tps_id' => $validatedData['tps_id'],
             'tahun' => $validatedData['tahun'],
+            'volumeSampah' => $validatedData['volumeSampah'],
         ]);
 
-        //mendapatkan parameter dari tabel parameter
-        $param_volume = Parameter::where('namaParameter', 'Volume Sampah')->first();
         $tps = Tps::find($validatedData['tps_id']);
-
-        if ($param_volume) {
-            //simpan nilai volume sampah ke tabel pivot tpsParameter
-            foreach ($validatedData['volume_sampah'] as $params_id => $nilai_volume) {
-                $tps->parameter()->attach($params_id, [
-                    'nilai_parameter' => $nilai_volume,
-                    'entity' => 'sampah', //menentukan entity sebagai sampah
-                ]);
-            }
-        }
-
-        $rata_rata_jarak = $sampah->rata_rata_jarak; //ambil nilai rata-rata jarak
-        $param_rata_jarak = Parameter::where('namaParameter', 'Rata-Rata Jarak')->first(); //ambil parameter u/ ratajarak
-
-        if ($param_rata_jarak) {
-            $tps->parameter()->syncWithoutDetaching([
-                $param_rata_jarak->id => [
-                    'nilai_parameter' => $rata_rata_jarak,
-                    'entity' => 'sampah',
-                ]
-            ]);
-        }
 
         return redirect()->route('sampah');
     }
 
     public function edit($id)
     {
-        $sampah = Sampah::with(['tps.parameter' => function ($query) {
-            $query->wherePivot('entity', 'sampah');
-        }])->find($id);
-
+        $sampah = Sampah::find($id);
         $tps = Tps::all();
-        $parameter = Parameter::all();
 
-        return view('sampah.formEdit', compact('sampah', 'tps', 'parameter'));
+        return view('sampah.formEdit', compact('sampah', 'tps'));
     }
 
     public function update($id, Request $request)
@@ -129,8 +96,7 @@ class sampahController extends Controller
         $validatedData = $request->validate([
             'tps_id' => 'required|exists:tps,id',
             'tahun' => 'required|numeric|digits:4',
-            'volume_sampah' => 'required|array',
-            'volume_sampah.*' => 'numeric', // Validasi nilai volume sampah
+            'volumeSampah' => 'required|numeric',
         ]);
 
         $sampah = Sampah::find($id);
@@ -151,29 +117,8 @@ class sampahController extends Controller
             $sampah->update([
                 'tps_id' => $validatedData['tps_id'],
                 'tahun' => $validatedData['tahun'],
+                'volumeSampah' => $validatedData['volumeSampah'],
             ]);
-
-            $param_volume = Parameter::where('namaParameter', 'Volume Sampah')->first();
-
-            //jika param volume ditemukan
-            if ($param_volume) {
-                // Mengupdate nilai volume sampah pada tabel pivot dengan entity 'sampah'
-                foreach ($validatedData['volume_sampah'] as $params_id => $nilai_volume) {
-                    $sampah->tps->parameter()->updateExistingPivot($params_id, [
-                        'nilai_parameter' => $nilai_volume,
-                        'entity' => 'sampah', // Tentukan entity sebagai 'sampah'
-                    ]);
-                }
-            }
-
-            $rata_rata_jarak = $sampah->rata_rata_jarak;
-            $param_rata_jarak = Parameter::where('namaParameter', 'Rata-Rata Jarak')->first();
-            if ($param_rata_jarak) {
-                $sampah->tps->parameter()->syncWithoutDetaching($param_rata_jarak->id, [
-                    'nilai_parameter' => $rata_rata_jarak,
-                    'entity' => 'sampah',
-                ]);
-            }
         }
 
         return redirect()->route('sampah');
@@ -185,8 +130,6 @@ class sampahController extends Controller
 
         if ($sampah) {
             $sampah->delete(); // Menghapus sampah
-            // Menghapus entri pivot terkait 'sampah' dari tabel tpsParameter
-            $sampah->tps->parameter()->wherePivot('entity', 'sampah')->detach();
             return response()->json(['message' => 'Item deleted successfully.']);
         } else {
             return response()->json(['message' => 'Item not found.'], 404);
@@ -203,11 +146,9 @@ class sampahController extends Controller
     public function import(Request $request)
     {
         $tahun = $request->input('tahun');
-        // dd($tahun);
 
         $request->validate([
             'file' => 'required|mimes:xlsx,xls,csv|max:2048',
-            // 'tahun' => 'required|digits:4',
         ]);
         // Import file
         $import = new SampahImport($tahun); // Kirimkan tahun ke class import

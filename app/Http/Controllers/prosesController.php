@@ -16,57 +16,38 @@ class ProsesController extends Controller
     // Fungsi untuk normalisasi data sampah berdasarkan tahun
     public function normalizeSampahData($tahun)
     {
-        // Mengambil data sampah yang terkait dengan tahun tertentu
-        $sampahData = Tps::with([
-            'parameterSampah' => function ($query) {
-                $query->whereIn('namaParameter', ['Volume Sampah', 'Rata-Rata Jarak'])->withPivot('nilai_parameter');
-            },
-            'parameterTps' => function ($query) {
-                $query->where('namaParameter', 'Jarak ke TPA')->withPivot('nilai_parameter');
-            },
-            'kelurahan'
-        ])
-            ->whereHas('sampah', function ($query) use ($tahun) {
-                $query->where('tahun', $tahun);
-            })->get();
+        // Ambil semua data Sampah berdasarkan tahun
+        $sampahData = Sampah::where('tahun', $tahun)->get();
 
-
-        // Inisialisasi array untuk menyimpan data normalisasi
+        // Inisialisasi array untuk menyimpan data dan parameter
+        $originalData = [];
         $volumeData = [];
         $jarakData = [];
         $rataRataData = [];
 
-        // Menyimpan data asli untuk setiap TPS
-        $originalData = [];
+        // Iterasi melalui data Sampah dan menyusun data yang dibutuhkan
+        foreach ($sampahData as $data) {
+            // Ambil data TPS terkait
+            $tps = $data->tps;
 
-        foreach ($sampahData as $tps) {
+            // Inisialisasi entry asli untuk setiap TPS
             $originalEntry = [
                 'tps_id' => $tps->id,
-                'namaTPS' => $tps->namaTPS,
-                'kelurahan' => $tps->kelurahan ? $tps->kelurahan->namaKelurahan : null,
-                'volume' => null,
-                'jarak' => null,
-                'rata_rata_jarak' => null,
+                'nama_tps' => $tps->namaTPS,
+                'kelurahan' => $tps->kelurahan ? $tps->kelurahan->namaKelurahan : 'Tidak Diketahui',
+                'volume' => $data->volumeSampah, // Mengambil volume sampah dari tabel Sampah
+                'jarak' => $tps->jarakTPA, // Mengambil jarak dari tabel Tps
+                'rata_rata_jarak' => $data->rata_rata_jarak, // Rata-rata jarak diambil dari accessor
                 'longitude' => $tps->longitude,
                 'latitude' => $tps->latitude,
             ];
 
-            // Menyimpan nilai parameter yang sesuai
-            foreach ($tps->parameterSampah as $parameter) {
-                if ($parameter->namaParameter == 'Volume Sampah') {
-                    $volumeData[] = $parameter->pivot->nilai_parameter;
-                    $originalEntry['volume'] = $parameter->pivot->nilai_parameter;
-                } elseif ($parameter->namaParameter == 'Rata-Rata Jarak') {
-                    $rataRataData[] = $parameter->pivot->nilai_parameter;
-                    $originalEntry['rata_rata_jarak'] = $parameter->pivot->nilai_parameter;
-                }
-            }
+            // Menyimpan nilai parameter untuk normalisasi
+            $volumeData[] = $data->volumeSampah;
+            $jarakData[] = $tps->jarakTPA;
+            $rataRataData[] = $data->rata_rata_jarak;
 
-            if ($tps->parameterTps->isNotEmpty()) {
-                $jarakData[] = $tps->parameterTps->first()->pivot->nilai_parameter;
-                $originalEntry['jarak'] = $tps->parameterTps->first()->pivot->nilai_parameter;
-            }
-
+            // Menambahkan entry asli ke dalam array
             $originalData[] = $originalEntry;
         }
 
@@ -74,24 +55,25 @@ class ProsesController extends Controller
         $normalize = function ($data) {
             $min = !empty($data) ? min($data) : 0;
             $max = !empty($data) ? max($data) : 1;
+
             return array_map(fn($value) => ($max - $min) ? ($value - $min) / ($max - $min) : 0, $data);
         };
 
         // Normalisasi data berdasarkan volume, jarak, dan rata-rata jarak
-        $normalizedData = [
-            'volume' => $normalize($volumeData),
-            'jarak' => $normalize($jarakData),
-            'rataRata' => $normalize($rataRataData),
-        ];
+        $normalizedVolume = $normalize($volumeData);
+        $normalizedJarak = $normalize($jarakData);
+        $normalizedRataRata = $normalize($rataRataData);
 
         // Menggabungkan data asli dengan data yang sudah dinormalisasi
-        $normalizedDataWithOriginal = collect($originalData)->map(function ($original, $index) use ($normalizedData) {
+        $normalizedDataWithOriginal = collect($originalData)->map(function ($original, $index) use ($normalizedVolume, $normalizedJarak, $normalizedRataRata) {
             return array_merge($original, [
-                'normalized_volume' => $normalizedData['volume'][$index] ?? null,
-                'normalized_jarak' => $normalizedData['jarak'][$index] ?? null,
-                'normalized_rata_rata_jarak' => $normalizedData['rataRata'][$index] ?? null,
+                'normalized_volume' => $normalizedVolume[$index] ?? null,
+                'normalized_jarak' => $normalizedJarak[$index] ?? null,
+                'normalized_rata_rata_jarak' => $normalizedRataRata[$index] ?? null,
             ]);
         });
+
+        // Mengembalikan data yang sudah dinormalisasi bersama data asli
         return $normalizedDataWithOriginal;
     }
 
@@ -105,13 +87,14 @@ class ProsesController extends Controller
         $clusters = [];
         $centroids = [];
 
-        // // Inisialisasi centroid pertama secara spesifik, misalnya data ke-10 sebagai centroid pertama
-        $centroids[] = $data[9];
+        // Menentukan centroid pertama dengan normalized_volume tertinggi
+        $maxVolumeIndex = array_search(max(array_column($data, 0)), array_column($data, 0)); // Mengambil indeks dengan nilai normalized_volume tertinggi
+        $centroids[] = $data[$maxVolumeIndex];
 
-        // Logging informasi mengenai centroid yang dipilih
-        Log::info('Centroid pertama dipilih:', [
-            'index' => 9,
-            'centroid' => $data[9]
+        // Logging informasi mengenai centroid pertama yang dipilih
+        Log::info('Centroid pertama dipilih berdasarkan normalized_volume tertinggi:', [
+            'index' => $maxVolumeIndex,
+            'centroid' => $data[$maxVolumeIndex]
         ]);
 
         mt_srand(170503);
@@ -300,13 +283,12 @@ class ProsesController extends Controller
                     'message' => 'Proses clustering berhasil dilakukan.',
                     'groupedByCluster' => $groupedByCluster
                 ], 200);
-            }else {
+            } else {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'Tahun yang dipilih belum ada data.'
                 ], 404);
             }
-
         } catch (\Exception $e) {
             // Tangani error jika ada
             return response()->json([
@@ -316,64 +298,6 @@ class ProsesController extends Controller
             ], 500);
         }
     }
-
-    // public function showCluster(Request $request)
-    // {
-
-    //     $tahun = $request->input('tahun');
-
-    //     // $tps = Tps::get('id');
-
-    //     $selectedYear = ClusteringResult::where('tahun', $tahun)->get();
-
-    //     // $tpsName = $tps->where('id' , $selectedYear->where('tps_id'));
-    //     $clusterTinggi = $selectedYear->where('cluster', 0);
-    //     $clusterSedang = $selectedYear->where('cluster', 1);
-    //     $clusterRendah = $selectedYear->where('cluster', 2);
-
-
-
-
-    //     // dd($tpsName);
-
-    //     return response()->json(compact('selectedYear', 'clusterTinggi', 'clusterSedang', 'clusterRendah'));
-    // }
-    // public function showProses(Request $request)
-    // {
-    //     // Mengambil tahun yang ada dalam tabel Sampah
-    //     $tahun = Sampah::select('tahun')
-    //         ->distinct()
-    //         ->orderBy('tahun', 'desc')
-    //         ->pluck('tahun')
-    //         ->toArray();
-
-    //     // Menangani kasus saat tahun belum dipilih atau tidak ada data
-    //     $selectedYear = $request->input('tahun');
-
-    //     // Jika permintaan AJAX
-    //     if ($request->ajax()) {
-    //         if ($selectedYear && in_array($selectedYear, $tahun)) {
-    //             // Proses clustering untuk tahun yang dipilih
-    //             $groupedByCluster = $this->performClustering($selectedYear);
-
-    //             // Mengembalikan hasil dalam bentuk HTML untuk ditampilkan di view
-    //             $html = view('proses.clustering_data', compact('groupedByCluster'))->render();
-
-    //             return response()->json([
-    //                 'status' => 'success',
-    //                 'data' => $html
-    //             ]);
-    //         } else {
-    //             return response()->json([
-    //                 'status' => 'error',
-    //                 'message' => 'Tahun tidak valid atau data tidak tersedia.'
-    //             ]);
-    //         }
-    //     }
-
-    //     // Jika bukan AJAX, tampilkan halaman normal
-    //     return view('proses.index', compact('tahun', 'selectedYear'));
-    // }
 
     // Fungsi untuk melakukan klasterisasi dengan K-Means++
     public function performClustering($tahun)
@@ -440,23 +364,9 @@ class ProsesController extends Controller
         return $groupedByCluster;
     }
 
-
-    // public function getClusteringResults(Request $request)
-    // {
-    //     $tahun = $request->input('tahun');
-    //     $results = ClusteringResult::where('tahun', $tahun)->get();
-
-    //     if ($results->isEmpty()) {
-    //         return response()->json(['status' => 'empty', 'message' => 'No clustering data found for the selected year.']);
-    //     }
-
-    //     return response()->json(['status' => 'success', 'data' => $results]);
-    // }
-
     public function processClustering(Request $request)
     {
         $tahun = $request->input('tahun');
-        dd($tahun);
 
         // Cek apakah data hasil clustering sudah ada untuk tahun yang dipilih
         $existingResults = ClusteringResult::where('tahun', $tahun)->exists();
@@ -480,7 +390,6 @@ class ProsesController extends Controller
             'message' => 'Clustering selesai dan data telah tersimpan'
         ]);
     }
-
 
     public function exportCluster($tahun)
     {

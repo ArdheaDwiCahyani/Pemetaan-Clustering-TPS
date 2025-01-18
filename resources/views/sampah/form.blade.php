@@ -11,7 +11,7 @@
                     <div class="card shadow mb-0">
                         <div class="card-body2 mb-0">
                             <!-- Pesan Error untuk Kombinasi tps_id dan Tahun -->
-                            @if($errors->has('tps_tahun_exists'))
+                            @if ($errors->has('tps_tahun_exists'))
                                 <div class="alert alert-danger">
                                     {{ $errors->first('tps_tahun_exists') }}
                                 </div>
@@ -42,23 +42,16 @@
 
                             <!-- Parameter Volume Sampah -->
                             <div class="form-group mb-0">
-                                @foreach ($parameter as $param)
-                                    @if ($param->namaParameter == 'Volume Sampah')
-                                        <div class="form-group mb-4">
-                                            <label for="volume_sampah_{{ $param->id }}"
-                                                class="text-dark text-sm font-weight-medium">{{ $param->namaParameter }}
-                                                (Ton)
-                                            </label>
-                                            <input type="number" name="volume_sampah[{{ $param->id }}]"
-                                                id="volume_sampah_{{ $param->id }}" class="form-control"
-                                                placeholder="Masukkan Volume Sampah" step="any">
-                                            <small id="errorVolume_{{ $param->id }}" class="text-danger"
-                                                style="display: none;">
-                                                Kolom tidak boleh kosong atau kurang dari 0!
-                                            </small>
-                                        </div>
-                                    @endif
-                                @endforeach
+                                <div class="form-group mb-4">
+                                    <label for="volumeSampah"
+                                        class="text-dark text-sm font-weight-medium">Volume Sampah (Ton)
+                                    </label>
+                                    <input type="number" name="volumeSampah" id="volumeSampah"
+                                        class="form-control" placeholder="Masukkan Volume Sampah" step="any">
+                                    <small id="errorVolumeSampah" class="text-danger" style="display: none;">
+                                        Kolom tidak boleh kosong atau kurang dari 0!
+                                    </small>
+                                </div>
                             </div>
                         </div>
                         <div class="card-footer mt-0">
@@ -70,7 +63,7 @@
             </div>
         </div>
     </form>
-    
+
     <script>
         // Ambil nilai dari localStorage dengan key 'selectedYear'
         const selectedYear = localStorage.getItem('selectedYear');
@@ -109,17 +102,15 @@
             }
 
             // Validasi Volume Sampah
-            const volumeInputs = document.querySelectorAll("input[name^='volume_sampah']");
-            volumeInputs.forEach((input) => {
-                const errorElement = document.getElementById(errorVolume_${input.id.split('_')[2]});
-                const value = parseFloat(input.value);
-                if (isNaN(value) || value < 0) {
-                    errorElement.style.display = "block";
-                    isFormValid = false;
-                } else {
-                    errorElement.style.display = "none";
-                }
-            });
+            const volumeSampah = document.getElementById("volumeSampah");
+            const errorVolumeSampah = document.getElementById("errorVolumeSampah");
+            if (volumeSampah.value === "") {
+                errorVolumeSampah.textContent = "Kolom tidak boleh kosong!";
+                errorVolumeSampah.style.display = "block";
+                isFormValid = false;
+            } else {
+                errorVolumeSampah.style.display = "none";
+            }
 
             // Cegah submit jika tidak valid
             if (!isFormValid) {
@@ -140,7 +131,9 @@
         const volumeInputs = document.querySelectorAll("input[name^='volume_sampah']");
         volumeInputs.forEach((input) => {
             input.addEventListener("input", function() {
-                const errorElement = document.getElementById(errorVolume_${input.id.split('_')[2]});
+                const errorElement = document.getElementById(errorVolume_$ {
+                    input.id.split('_')[2]
+                });
                 errorElement.style.display = "none";
             });
         });

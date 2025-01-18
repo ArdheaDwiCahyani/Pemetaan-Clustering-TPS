@@ -34,27 +34,13 @@
                                     </small>
                                 </select>
                             </div>
-                            <div class="form-group mb-0">
-                                @foreach ($parameter as $param)
-                                    @if ($param->namaParameter == 'Jarak ke TPA')
-                                        <div class="form-group mb-4">
-                                            <label for="param{{ $param->id }}"
-                                                class="text-dark text-sm font-weight-medium">{{ $param->namaParameter }}
-                                                (Km)
-                                            </label>
-                                            <input type="hidden" name="params_id[]" value="{{ $param->id }}">
-                                            {{-- Mengambil nilai_parameter dari hubungan pivot berdasarkan params_id --}}
-                                            <input type="number" name="nilai_parameter[]" id="param{{ $param->id }}"
-                                                class="form-control"
-                                                value="{{ $tps->parameter->where('id', $param->id)->first()->pivot->nilai_parameter ?? '' }}"
-                                                step="0.01">
-                                            <small id="errorNilaiJarak" class="text-danger"
-                                                style="display: none; margin-top: -20px; margin-bottom: 20px">
-                                                Kolom tidak boleh kosong!
-                                            </small>
-                                        </div>
-                                    @endif
-                                @endforeach
+                            <div class="form-group mb-4">
+                                <label for="jarakTPA" class="text-dark text-sm font-weight-medium">Jarak ke TPA (Km)</label>
+                                <input type="text" class="form-control" id="jarakTPA" name="jarakTPA"
+                                    value="{{ isset($tps) ? $tps->jarakTPA : '' }}">
+                                <small id="errorNamaTPA" class="text-danger" style="display: none; margin-bottom: 20px">
+                                    Kolom tidak boleh kosong!
+                                </small>
                             </div>
                             <div class="form-group mb-4">
                                 <label for="longitude" class="text-dark text-sm font-weight-medium">Koordinat Longitude
@@ -93,11 +79,11 @@
             var errorNamaTPS = document.getElementById("errorNamaTPS");
             var kelurahanSelect = document.getElementById("kelurahans_id");
             var errorKelurahan = document.getElementById("errorKelurahan");
-            var nilaiJarak = document.querySelectorAll('[name="nilai_parameter[]"]');
-            var errorNilaiJarak = document.getElementById("errorNilaiJarak");
+            var jarakTPA = document.getElementById("jarakTPA");
+            var errorJarakTPA = document.getElementById("errorJarakTPA");
             var longitude = document.getElementById("longitude");
             var errorLongitude = document.getElementById("errorLongitude");
-            var Latitude = document.getElementById("Latitude");
+            var latitude = document.getElementById("Latitude");
             var errorLatitude = document.getElementById("errorLatitude");
 
             var isFormValid = true;
@@ -133,16 +119,14 @@
                 errorKelurahan.style.display = "none"; // Sembunyikan pesan kesalahan jika tidak ada error
             }
 
-            //nilai parameter
-            nilaiJarak.forEach(function(input) {
-                if (input.value.trim() === "") {
-                    errorNilaiJarak.textContent = "Kolom tidak boleh kosong!";
-                    errorNilaiJarak.style.display = "block";
-                    isFormValid = false;
-                } else {
-                    errorNilaiJarak.style.display = "none";
-                }
-            });
+            //jarak tpa
+            if (jarakTPA.value === "") {
+                errorJarakTPA.textContent = "Kolom tidak boleh kosong!";
+                errorJarakTPA.style.display = "block";
+                isFormValid = false;
+            } else {
+                errorJarakTPA.style.display = "none";
+            }
 
             //longitude
             if (longitude.value.trim() === "") {
@@ -185,15 +169,8 @@
             document.getElementById("errorKelurahan").style.display = "none";
         });
 
-        var nilaiJarak = document.querySelectorAll("input[name='nilai_parameter[]']");
-        nilaiJarak.forEach(function(input) {
-            input.addEventListener("input", function() {
-                // Dapatkan elemen error yang sesuai
-                var errorElement = document.getElementById("errorNilaiJarak");
-
-                // Sembunyikan pesan kesalahan saat pengguna mengetik
-                errorElement.style.display = "none";
-            });
+        document.getElementById("jarakTPA").addEventListener("input", function() {
+            document.getElementById("errorJarakTPA").style.display = "none";
         });
 
         document.getElementById("longitude").addEventListener("input", function() {
