@@ -24,33 +24,24 @@
     <title>
         DLH KOTA MALANG
     </title>
+
     <!--     Fonts and icons     -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet" />
+
     <!-- Nucleo Icons -->
     <link href="{{ asset('assets/css/nucleo-icons.css') }}" rel="stylesheet" />
     <link href="{{ asset('assets/css/nucleo-svg.css') }}" rel="stylesheet" />
-    <!-- Font Awesome Icons -->
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <script src="https://kit.fontawesome.com/42d5adcbca.js" crossorigin="anonymous"></script>
     <link href="{{ asset('assets/css/nucleo-svg.css') }}" rel="stylesheet" />
-    <!-- CSS Files -->
-    <!-- <link id="pagestyle" href="../assets/css/argon-dashboard.css?v=2.0.4" rel="stylesheet" /> -->
     <link id="pagestyle" href="{{ asset('assets/css/argon-dashboard.css?v=2.0.4') }}" rel="stylesheet" />
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css"
         integrity="sha512-dPXYcDub/aeb08c63jRq/k6GaKccl256JQy/AnOq7CAnEZ9FzSL9wSbcZkMp4R26vBsMLFYH4kQ67/bbV8XaCQ=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.1/font/bootstrap-icons.css">
-    {{-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"> --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js@9.0.1/public/assets/styles/choices.min.css" />
-    <style>
-        #subMenu {
-            display: none;
-        }
-    </style>
 </head>
-
-<!-- SIDEBAR -->
 
 <body class="g-sidenav-show bg-p">
     <div class="position-absolute w-100"></div>
@@ -66,95 +57,13 @@
     </main>
 
     <!--   Core JS Files   -->
-    <script src="../assets/js/core/popper.min.js"></script>
-    <script src="../assets/js/core/bootstrap.min.js"></script>
-    <script src="../assets/js/plugins/perfect-scrollbar.min.js"></script>
-    <script src="../assets/js/plugins/smooth-scrollbar.min.js"></script>
-    <script src="../assets/js/plugins/chartjs.min.js"></script>
+    <script src="{{ asset('assets/js/core/popper.min.js') }}"></script>
+    <script src="{{ asset('assets/js/core/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('assets/js/plugins/perfect-scrollbar.min.js') }}"></script>
+    <script src="{{ asset('assets/js/plugins/smooth-scrollbar.min.js') }}"></script>
+    {{-- <script src="{{ asset('assets/js/argon-dashboard.min.js?v=2.0.4') }}"></script> --}}
     <script src="https://cdn.jsdelivr.net/npm/choices.js@9.0.1/public/assets/scripts/choices.min.js"></script>
-    <script>
-        var ctx1 = document.getElementById("chart-line").getContext("2d");
 
-        var gradientStroke1 = ctx1.createLinearGradient(0, 230, 0, 50);
-
-        gradientStroke1.addColorStop(1, 'rgba(94, 114, 228, 0.2)');
-        gradientStroke1.addColorStop(0.2, 'rgba(94, 114, 228, 0.0)');
-        gradientStroke1.addColorStop(0, 'rgba(94, 114, 228, 0)');
-        new Chart(ctx1, {
-            type: "line",
-            data: {
-                labels: ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-                datasets: [{
-                    label: "Mobile apps",
-                    tension: 0.4,
-                    borderWidth: 0,
-                    pointRadius: 0,
-                    borderColor: "#5e72e4",
-                    backgroundColor: gradientStroke1,
-                    borderWidth: 3,
-                    fill: true,
-                    data: [50, 40, 300, 220, 500, 250, 400, 230, 500],
-                    maxBarThickness: 6
-
-                }],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false,
-                    }
-                },
-                interaction: {
-                    intersect: false,
-                    mode: 'index',
-                },
-                scales: {
-                    y: {
-                        grid: {
-                            drawBorder: false,
-                            display: true,
-                            drawOnChartArea: true,
-                            drawTicks: false,
-                            borderDash: [5, 5]
-                        },
-                        ticks: {
-                            display: true,
-                            padding: 10,
-                            color: '#fbfbfb',
-                            font: {
-                                size: 11,
-                                family: "Open Sans",
-                                style: 'normal',
-                                lineHeight: 2
-                            },
-                        }
-                    },
-                    x: {
-                        grid: {
-                            drawBorder: false,
-                            display: false,
-                            drawOnChartArea: false,
-                            drawTicks: false,
-                            borderDash: [5, 5]
-                        },
-                        ticks: {
-                            display: true,
-                            color: '#ccc',
-                            padding: 20,
-                            font: {
-                                size: 11,
-                                family: "Open Sans",
-                                style: 'normal',
-                                lineHeight: 2
-                            },
-                        }
-                    },
-                },
-            },
-        });
-    </script>
     <script>
         var win = navigator.platform.indexOf('Win') > -1;
         if (win && document.querySelector('#sidenav-scrollbar')) {
@@ -164,14 +73,48 @@
             Scrollbar.init(document.querySelector('#sidenav-scrollbar'), options);
         }
     </script>
+
     <!-- Github buttons -->
     <script async defer src="https://buttons.github.io/buttons.js"></script>
-    <!-- Control Center for Soft Dashboard: parallax effects, scripts for the example pages etc -->
-    <script src="../assets/js/argon-dashboard.min.js?v=2.0.4"></script>
-
-    {{-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> --}}
+    {{-- sweetalert --}}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    {{-- Toggle Sidenav --}}
+    <script>
+        const iconNavbarSidenav = document.getElementById('iconNavbarSidenav');
+        const iconSidenav = document.getElementById('iconSidenav');
+        const sidenav = document.getElementById('sidenav-main');
+        let body = document.getElementsByTagName('body')[0];
+        let className = 'g-sidenav-pinned';
+
+        if (iconNavbarSidenav) {
+            iconNavbarSidenav.addEventListener("click", toggleSidenav);
+        }
+
+        if (iconSidenav) {
+            iconSidenav.addEventListener("click", toggleSidenav);
+        }
+
+        function toggleSidenav() {
+            if (body.classList.contains(className)) {
+                // sidebar terbuka
+                body.classList.remove(className);
+                setTimeout(function() {
+                    sidenav.classList.remove('bg-white');
+                }, 100);
+                sidenav.classList.remove('bg-transparent');
+
+            } else {
+                // sidebar tertutup
+                body.classList.add(className);
+                sidenav.classList.add('bg-white');
+                sidenav.classList.remove('bg-transparent');
+                iconSidenav.classList.remove('d-none');
+            }
+        }
+    </script>
+
+    {{-- mengatur button delete dg sweet alert --}}
     <script type="text/javascript">
         $(function() {
             $(document).on('click', '#delete', function(e) {
@@ -215,28 +158,6 @@
                 });
             });
         });
-    </script>
-
-    <!-- Mengatur icon dropdown -->
-    <style>
-        /* Pastikan submenu dalam kondisi default tersembunyi */
-        #subMenu {
-            display: none;
-        }
-    </style>
-
-    <!-- choices dropdown -->
-    <script>
-        $(document).ready(function() {
-            document.querySelectorAll('.choices-single').forEach(function(element) {
-                // Inisialisasi Choices.js untuk setiap elemen
-                new Choices(element, {
-                    searchEnabled: true, // Aktifkan pencarian
-                    shouldSort: false, // Jangan urutkan pilihan secara otomatis
-                    itemSelectText: '', // Kosongkan teks "Press to select" (opsional)
-                });
-            });
-        })
     </script>
 
     {{-- dropdown data wilayah --}}
@@ -293,10 +214,7 @@
         loadJQuery(initializeDropdown);
     </script>
 
-
-    <!-- Argon Dashboard Scripts -->
-    <script src="{{ asset('argon-dashboard/js/argon-dashboard.min.js') }}"></script>
-
+    {{-- menjalankan script pada peta --}}
     @yield('scripts')
 
 </body>

@@ -1,7 +1,5 @@
 @extends ('layouts.app')
 
-@section('title', 'Data Kecamatan')
-
 @section('content')
     <div class="container-fluid py-4">
         <div class="row">
@@ -20,7 +18,7 @@
         </div>
     </div>
 
-    <!-- Tambahkan CSS Kustom untuk DataTables -->
+    {{-- styling js --}}
     <style>
         /* Menyesuaikan ukuran dan jenis font untuk Search dan Show Entries */
         .dataTables_wrapper .dataTables_filter label,
@@ -49,58 +47,7 @@
             border: 1px solid #ced4da;
             border-radius: 0.375rem;
         }
-
-        .select2-container .select2-selection--single {
-            font-size: 0.875rem;
-            background-color: #f8f9fa;
-            border-radius: 5px;
-            /* padding: 5px; */
-            border: 1px solid #ccc;
-        }
-
-        .select2-container .select2-selection--single .select2-selection__rendered {
-            color: #344767;
-            font-size: 0.875rem;
-            /* font-weight: bold; */
-        }
-
-        .select2-container .select2-selection--single .select2-selection__arrow {
-            color: #344767;
-            font-size: 0.875rem;
-        }
-
-        .select2-dropdown .select2-results__option {
-            font-size: 0.875rem;
-        }
     </style>
-
-    <script>
-        // Fungsi untuk memuat script dan stylesheet secara dinamis
-        function loadScripts(callback) {
-            // Muat jQuery terlebih dahulu
-            var scriptJQuery = document.createElement("script");
-            scriptJQuery.src = "https://code.jquery.com/jquery-3.2.1.min.js";
-            scriptJQuery.type = "text/javascript";
-            scriptJQuery.onload = function() {
-                // Setelah jQuery dimuat, muat Select2 CSS
-                var linkSelect2 = document.createElement("link");
-                linkSelect2.rel = "stylesheet";
-                linkSelect2.href = "https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css";
-                document.head.appendChild(linkSelect2);
-
-                // Setelah Select2 CSS dimuat, muat Select2 JS
-                var scriptSelect2 = document.createElement("script");
-                scriptSelect2.src = "https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js";
-                scriptSelect2.type = "text/javascript";
-                scriptSelect2.onload = function() {
-                    // Semua script dan stylesheet sudah dimuat, jalankan callback untuk inisialisasi
-                    callback();
-                };
-                document.head.appendChild(scriptSelect2);
-            };
-            document.head.appendChild(scriptJQuery);
-        }
-    </script>
 
     <script>
         // Fungsi untuk memuat jQuery dan DataTable hanya saat diperlukan
@@ -113,6 +60,7 @@
                 scriptJQuery.onload = function() {
                     loadDataTableAssets(callback); // Panggil loadAssets setelah jQuery dimuat
                 };
+                // menambahkan elemen <script> yang baru saja dibuat ke dalam elemen <head> halaman web
                 document.head.appendChild(scriptJQuery);
             } else {
                 loadDataTableAssets(callback); // Jika jQuery sudah dimuat, langsung panggil loadAssets
@@ -147,11 +95,12 @@
         // Fungsi untuk menginisialisasi DataTable dengan ID #data-table
         function initializeDataTable() {
             $(document).ready(function() {
+                // Menggunakan jQuery DataTable untuk elemen #data-table
                 const table = $('#data-table').DataTable({
-                    processing: true,
-                    responsive: true,
-                    autoWidth: false,
-                    paging: true,
+                    processing: true, //Menampilkan indikator loading saat DataTable sedang mengambil data
+                    responsive: true, //Membuat tabel responsif untuk perangkat mobile
+                    autoWidth: false, //Mencegah tabel mengatur lebar kolom secara otomatis
+                    paging: true, //Mengatifkan fitur pagination
                     ajax: {
                         "url": "{{ route('allKecamatan') }}",
                         "type": "GET",
@@ -163,6 +112,7 @@
                         }
                     },
                     language: {
+                        //Mengganti tombol next dan previous pada pagination dengan ikon Font Awesome
                         paginate: {
                             next: '<i class="fa fa-angle-double-right" aria-hidden="true"></i>',
                             previous: '<i class="fa fa-angle-double-left" aria-hidden="true"></i>'
@@ -182,8 +132,8 @@
                             title: "Action",
                             className: 'text-center text-dark text-sm',
                             data: null,
-                            orderable: false,
-                            searchable: false,
+                            orderable: false, //Mencegah kolom ini dari dapat diurutkan
+                            searchable: false, //Mencegah dari fitur pencarian
                             render: function(data, type, row) {
                                 return `
                                 <div class="text-center align-middle px-0" style="font-size: 20px;">
@@ -195,7 +145,7 @@
                                         <i class="fa-solid fa-trash btn-outline-danger"></i>
                                     </a>
                                 </div>
-                  `.replace(/:id/g, row.id);
+                  `.replace(/:id/g, row.id); //Mengganti setiap :id dalam string template dengan row.id
                             }
                         }
                     ],

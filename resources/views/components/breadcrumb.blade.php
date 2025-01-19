@@ -2,26 +2,31 @@
     use Illuminate\Support\Facades\Route;
     use Illuminate\Support\Str;
 
-    $selectedYear = $selectedYear ?? now()->year; // Default tahun ke tahun saat ini
-
-    $isDashboard = Route::current()->uri() === '/';
+    //mengecek rute aktif
+    $isDashboard = Route::currentRouteName() === 'dashboard';
     $isPeta = Route::currentRouteName() === 'peta';
+    $isProses = Route::currentRouteName() === 'proses';
 
     if ($isDashboard) {
         $title = 'Dashboard';
         $subtitle = '';
-        $titleRoute = '/';
+        $titleRoute = route('dashboard');
     } elseif ($isPeta) {
         $title = 'Peta Cluster';
         $subtitle = '';
-        $titleRoute = route('peta', ['tahun' => $selectedYear]);
-    } else {
+        $titleRoute = route('peta');
+    } elseif ($isProses) {
+        $title = 'Proses Clustering';
+        $subtitle = '';
+        $titleRoute = route('proses');
+    }else {
         $currentRoute = Route::currentRouteName();
+        //array untuk mengambil title dan subtitle dari route
         $routeParts = $currentRoute ? explode('.', $currentRoute) : [];
 
         $mainEntity = $routeParts[0] ?? 'default';
         $title = 'Data ' . Str::title($mainEntity);
-        $titleRoute = route($mainEntity, ['tahun' => $selectedYear]);
+        $titleRoute = route($mainEntity);
         $subtitle = isset($routeParts[1]) ? Str::title($routeParts[1] . ' ' . Str::title($mainEntity)) : '';
     }
 @endphp

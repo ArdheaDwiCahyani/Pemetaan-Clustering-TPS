@@ -14,7 +14,7 @@
     <div class="w-auto " id="sidenav-collapse-main">
         <ul class="navbar-nav">
             <li class="nav-item">
-                <a class="nav-link {{ request()->is('/') ? 'active' : '' }}" href="{{ url('/') }}">
+                <a class="nav-link {{ request()->is('dashboard') ? 'active' : '' }}" href="{{ route('dashboard') }}">
                     <div class="icon icon-sm border-radius-md me-2 d-flex align-items-center justify-content-center">
                         <i class="bi bi-laptop text-primary text-sm opacity-10"></i>
                     </div>
@@ -119,6 +119,7 @@
                         <span class="nav-link-text ms-1">Data User</span>
                     </a>
                 @endif
-            </li>
-
+            </li>  
+        </ul>
+    </div>
 </aside>

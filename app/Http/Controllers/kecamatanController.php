@@ -44,9 +44,7 @@ class kecamatanController extends Controller
     {
         $kecamatan = Kecamatan::find($id);
 
-        return view('kecamatan.formEdit', [
-            'kecamatan' => $kecamatan
-        ]);
+        return view('kecamatan.formEdit', compact('kecamatan'));
     }
 
     public function update($id, Request $request)

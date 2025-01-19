@@ -1,7 +1,5 @@
 @extends('layouts.app')
 
-@section('title', 'Data Kecamatan')
-
 @section('content')
     <form action="{{ route('kecamatan.tambah.update', $kecamatan->id) }}" method="post" id="myForm">
         @csrf
@@ -28,43 +26,4 @@
             </div>
         </div>
     </form>
-
-    {{-- Membuat Alert Form --}}
-    <script>
-        document.getElementById("myForm").addEventListener("submit", function(event) {
-            // Ambil elemen input namaKecamatan dan elemen pesan kesalahan
-            var namaKecamatan = document.getElementById("namaKecamatan");
-            var errorNamaKecamatan = document.getElementById("errorNamaKecamatan");
-
-            // Cek jika kolom namaKecamatan masih kosong
-            if (namaKecamatan.value.trim() === "") {
-                event.preventDefault(); // Menghentikan form dari pengiriman
-                errorNamaKecamatan.style.display = "block"; // Menampilkan pesan kesalahan
-                namaKecamatan.focus(); // Fokus ke kolom namaKecamatan
-            } else if (/[^a-zA-Z\s]/.test(namaKecamatan.value.trim())) {
-                event.preventDefault(); // Menghentikan form dari pengiriman
-                errorNamaKecamatan.textContent = "Kolom hanya boleh berisi huruf!";
-                errorNamaKecamatan.style.display = "block"; // Menampilkan pesan kesalahan
-                namaKecamatan.focus(); // Fokus ke kolom namaKecamatan
-            } else if (namaKecamatan.value.trim().length < 5) {
-                event.preventDefault();
-                errorNamaKecamatan.textContent = "Nama kecamatan minimal 5 karakter";
-                errorNamaKecamatan.style.display = "block";
-                namaKecamatan.focus();
-            } else if (namaKecamatan.value.trim().length > 100) {
-                event.preventDefault();
-                errorNamaKecamatan.textContent = "Nama kecamatan maksimal 100 karakter";
-                errorNamaKecamatan.style.display = "block";
-                namaKecamatan.focus();
-            }
-        });
-
-        // Menyembunyikan pesan kesalahan saat pengguna mulai mengetik
-        document.getElementById("namaKecamatan").addEventListener("input", function() {
-            var errorNamaKecamatan = document.getElementById("errorNamaKecamatan");
-            if (errorNamaKecamatan.style.display === "block") {
-                errorNamaKecamatan.style.display = "none"; // Sembunyikan pesan kesalahan
-            }
-        });
-    </script>
 @endsection

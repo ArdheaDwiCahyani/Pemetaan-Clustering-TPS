@@ -43,7 +43,11 @@ Route::controller(AuthController::class)->group(function () {
 
 
 Route::middleware(['first.visit'])->group(function () {
-    Route::get('/', [dashboardController::class, 'index'])->name('dashboard');
+    Route::get('/', function () {
+        return redirect()->route('dashboard');
+    });
+    
+    Route::get('/dashboard', [dashboardController::class, 'index'])->name('dashboard');
 
     Route::controller(kecamatanController::class)->prefix('kecamatan')->group(function () {
         Route::get('/', 'index')->name('kecamatan');
