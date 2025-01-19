@@ -46,7 +46,7 @@ Route::middleware(['first.visit'])->group(function () {
     Route::get('/', function () {
         return redirect()->route('dashboard');
     });
-    
+
     Route::get('/dashboard', [dashboardController::class, 'index'])->name('dashboard');
 
     Route::controller(kecamatanController::class)->prefix('kecamatan')->group(function () {
@@ -135,7 +135,7 @@ Route::middleware(['first.visit'])->group(function () {
     });
 
     Route::controller(PetaController::class)->prefix('peta')->group(function() {
-        Route::get('/index', 'indexPeta')->name('peta');
+        Route::get('/', 'indexPeta')->name('peta');
         Route::get('/showMap', 'showMap')->name('pemetaan');
         Route::get('/geojson/{tahun}', 'geojsonData')->name('geojsonData');
     });
