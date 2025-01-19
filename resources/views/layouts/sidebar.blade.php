@@ -119,7 +119,7 @@
                         <span class="nav-link-text ms-1">Data User</span>
                     </a>
                 @endif
-            </li>  
+            </li>
         </ul>
     </div>
 </aside>

@@ -8,7 +8,7 @@ use App\Http\Controllers\jarakController;
 use App\Http\Controllers\kecamatanController;
 use App\Http\Controllers\kelurahanController;
 use App\Http\Controllers\parameterController;
-use App\Http\Controllers\PetaController;
+use App\Http\Controllers\petaController;
 use App\Http\Controllers\prosesClustering;
 use App\Http\Controllers\prosesController;
 use App\Http\Controllers\SearchController;
@@ -134,7 +134,7 @@ Route::middleware(['first.visit'])->group(function () {
         Route::get('perform/{tahun}', 'performClustering')->name('perform');
     });
 
-    Route::controller(PetaController::class)->prefix('peta')->group(function() {
+    Route::controller(petaController::class)->prefix('peta')->group(function() {
         Route::get('/', 'indexPeta')->name('peta');
         Route::get('/showMap', 'showMap')->name('pemetaan');
         Route::get('/geojson/{tahun}', 'geojsonData')->name('geojsonData');
