@@ -13,9 +13,9 @@ class RedirectIfFirstVisit
     public function handle(Request $request, Closure $next): Response
     {
         if (!Auth::check() && !$request->routeIs('login.form', 'register.form', 'forgot-pw', 'reset.pw', 'register')) {
-            return redirect()->route('login.form');
+            return response()->view('auth.login');
         }
-        
+
         return $next($request);
     }
 }
