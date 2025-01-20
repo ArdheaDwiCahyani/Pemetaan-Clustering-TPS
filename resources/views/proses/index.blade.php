@@ -23,14 +23,10 @@
                                 </div>
                                 <div class="col-auto ms-auto">
                                     <div class="d-flex gap-2">
-                                        {{-- <button type="submit" class="btn btn-outline-primary" id="proses-btn"
-                                            style="min-width: 120px;">Proses</button> --}}
                                         <button type="button" class="btn btn-outline-primary" id="replace-btn"
                                             style="min-width: 120px;">Replace</button>
-                                        <a href="{{ isset($selectedYear) && $selectedYear ? route('hasil.export', ['tahun' => $selectedYear]) : '#' }}"
-                                            class="btn btn-primary" id="export-btn" style="min-width: 120px;"
-                                            {{ !isset($selectedYear) || !$selectedYear ?: '' }}>
-                                            Export</a>
+                                        <a href="#" class="btn btn-primary" id="export-btn"
+                                            style="min-width: 120px;">Export</a>
                                     </div>
                                 </div>
                             </div>
@@ -126,7 +122,6 @@
             </div>
         </div>
     </div>
-    </div>
 
 
 
@@ -149,6 +144,47 @@
     </script> --}}
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        const selectTahun = document.getElementById('tahun');
+        const exportBtn = document.getElementById('export-btn');
+
+        // Ketika tahun dipilih, simpan ke localStorage
+        selectTahun.addEventListener('change', function() {
+            const selectedYear = selectTahun.value;
+            if (selectedYear && selectedYear !== "pilih-tahun") {
+                localStorage.setItem('selectedYear', selectedYear);
+            } else {
+                localStorage.removeItem('selectedYear');
+            }
+            updateExportUrl();
+        });
+
+        // Fungsi untuk memperbarui URL tombol Export
+        function updateExportUrl() {
+            const savedYear = localStorage.getItem('selectedYear');
+            if (savedYear && savedYear !== "pilih-tahun") {
+                exportBtn.href = `{{ url('proses/export') }}/${savedYear}`;
+            } else {
+                exportBtn.href = '#'; // Default jika tidak ada tahun yang dipilih
+            }
+        }
+
+        // Set URL export saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', function() {
+            updateExportUrl();
+        });
+
+        // Validasi sebelum tombol Export diklik
+        exportBtn.addEventListener('click', function(event) {
+            const savedYear = localStorage.getItem('selectedYear');
+            if (!savedYear || savedYear === "pilih-tahun") {
+                alert('Silakan pilih tahun terlebih dahulu!');
+                event.preventDefault(); // Cegah navigasi jika tahun tidak valid
+            }
+        });
+    </script>
+
 
     <script>
         $(document).ready(function() {
@@ -189,7 +225,7 @@
                                 // Ensure selectedYear is available here
                                 const url = '/proses/show-replace/' + selectedYear;
                                 console.log(
-                                url); // Log URL yang dibentuk// Log the generated URL
+                                    url); // Log URL yang dibentuk// Log the generated URL
 
                                 $.ajax({
                                     url: url,
@@ -223,16 +259,16 @@
                                                 </thead>
                                                 <tbody>
                                                     ${clusterData.map((data, index) => `
-                                                                <tr>
-                                                                    <td class="text-dark text-center align-middle text-sm">${index + 1}</td>
-                                                                    <td class="text-dark align-middle text-sm text-wrap">${data.nama_tps}</td>
-                                                                    <td class="text-dark text-center align-middle text-sm">${data.volume}</td>
-                                                                    <td class="text-dark text-center align-middle text-sm">${data.jarak}</td>
-                                                                    <td class="text-dark text-center align-middle text-sm">${data.rata_rata_jarak}</td>
-                                                                    <td class="text-dark text-center align-middle text-sm">Cluster ${data.cluster + 1}</td>
-                                                                    <td class="text-dark text-center align-middle text-sm">${data.prioritas}</td>
-                                                                </tr>
-                                                            `).join('')}
+                                                                                    <tr>
+                                                                                        <td class="text-dark text-center align-middle text-sm">${index + 1}</td>
+                                                                                        <td class="text-dark align-middle text-sm text-wrap">${data.nama_tps}</td>
+                                                                                        <td class="text-dark text-center align-middle text-sm">${data.volume}</td>
+                                                                                        <td class="text-dark text-center align-middle text-sm">${data.jarak}</td>
+                                                                                        <td class="text-dark text-center align-middle text-sm">${data.rata_rata_jarak}</td>
+                                                                                        <td class="text-dark text-center align-middle text-sm">Cluster ${data.cluster + 1}</td>
+                                                                                        <td class="text-dark text-center align-middle text-sm">${data.prioritas}</td>
+                                                                                    </tr>
+                                                                                `).join('')}
                                                 </tbody>
                                             </table>
                                         </div>

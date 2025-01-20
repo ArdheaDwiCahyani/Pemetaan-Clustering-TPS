@@ -394,7 +394,6 @@ class ProsesController extends Controller
     public function exportCluster($tahun)
     {
         $clusters = session('groupedByCluster');
-        // dd($clusters);
         if (!$clusters) {
             return redirect()->back()->with('error', 'Data hasil clustering belum tersedia.');
         }
@@ -403,7 +402,7 @@ class ProsesController extends Controller
         foreach ($clusters as $clusterIndex => $clusterData) {
             foreach ($clusterData as $data) {
                 $dataForExport->push([
-                    'Nama TPS' => $data['namaTPS'],
+                    'Nama TPS' => $data['nama_tps'],
                     'Volume Sampah (Ton)' => $data['volume'],
                     'Jarak ke TPA (Km)' => $data['jarak'],
                     'Rata-Rata Jarak (Km)' => $data['rata_rata_jarak'],
