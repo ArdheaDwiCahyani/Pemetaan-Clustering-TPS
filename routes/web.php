@@ -29,7 +29,7 @@ use Maatwebsite\Excel\Row;
 */
 
 Route::controller(AuthController::class)->group(function () {
-    Route::get('/login', 'showLoginForm')->name('login.form');
+    Route::get('/', 'showLoginForm')->name('login.form');
     Route::post('/login', 'login')->name('login');
     Route::post('/logout', 'logout')->name('logout');
     Route::get('/forgot-pw', 'showForgotPassword')->name('forgot-pw');
