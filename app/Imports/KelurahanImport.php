@@ -19,10 +19,12 @@ class KelurahanImport implements ToModel, WithHeadingRow, SkipsEmptyRows
             return null;
         }
 
-        return new Kelurahan([
+        $kelurahan = Kelurahan::firstOrCreate([
             'namaKelurahan' => $row['nama_kelurahan'],
             'kecamatan_id' => $kecamatan->id,
         ]);
+
+        return $kelurahan;
     }
 
     public function headingRow(): int

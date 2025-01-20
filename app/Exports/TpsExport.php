@@ -9,20 +9,16 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 
 class TpsExport implements FromCollection, WithHeadings, ShouldAutoSize
 {
-    /**
-    * @return \Illuminate\Support\Collection
-    */
     public function collection()
     {
-        return Tps::with('kelurahan', 'parameter')->get()->map(function ($tps) {
-            $jarakKeTpa = $tps->parameter->firstWhere('namaParameter', 'Jarak ke TPA');
+        return Tps::with('kelurahan')->get()->map(function ($tps) {
 
             return [
                 'nama_tps' => $tps->namaTPS,
                 'nama_kelurahan' => $tps->kelurahan->namaKelurahan ?? 'Tidak Diketahui',
+                'jarak_ke_tpa' => $tps->jarakTPA,
                 'longitude' => $tps->longitude,
                 'latitude' => $tps->latitude,
-                'jarak_ke_tpa' => $jarakKeTpa->pivot->nilai_parameter ?? 'N/A',
             ];
         });
     }
@@ -32,9 +28,9 @@ class TpsExport implements FromCollection, WithHeadings, ShouldAutoSize
         return [
             'Nama TPS',
             'Kelurahan',
+            'Jarak ke TPA (Km)',
             'Longitude',
             'Latitude',
-            'Jarak ke TPA (Km)',
         ];
     }
 }

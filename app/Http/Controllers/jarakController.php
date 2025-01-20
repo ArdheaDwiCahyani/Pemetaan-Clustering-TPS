@@ -6,28 +6,16 @@ use App\Exports\JarakExport;
 use App\Imports\JarakImport;
 use App\Models\Jarak;
 use App\Models\Tps;
-use Illuminate\Auth\Events\Validated;
-use Illuminate\Contracts\Support\ValidatedData;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 
 class jarakController extends Controller
 {
     public function index(Request $request)
     {
-        $perPage = $request->input('per_page', 4);
-        $tpsAsalId = $request->input('tps_asal');
-        $jarakQuery = Jarak::with(['tpsAsal', 'tpsTujuan']);
-
-        if ($tpsAsalId) {
-            $jarakQuery->where('tps_asal_id', $tpsAsalId);
-        }
-
-        $jarak = $jarakQuery->paginate($perPage);
         $tpsList = Tps::all();
 
-        return view('jarak.index', compact('jarak', 'tpsList', 'tpsAsalId'));
+        return view('jarak.index', compact('tpsList'));
     }
 
     public function allJarak() 
@@ -56,7 +44,7 @@ class jarakController extends Controller
     {
         $validatedData = $request->validate([
             'tps_asal_id' => 'required|exists:tps,id',
-            'tps_tujuan_id' => 'required|exists:tps,id|different:tps_asal_id',
+            'tps_tujuan_id' => 'required|exists:tps,id|different:tps_asal_id',      
             'jarak' => 'required|numeric|min:0',
         ]);
 
@@ -99,13 +87,7 @@ class jarakController extends Controller
     public function hapus($id)
     {
         $jarak = Jarak::find($id);
-
-        if ($jarak) {
-            $jarak->delete(); // Menghapus jarak
-            return response()->json(['message' => 'Item deleted successfully.']);
-        } else {
-            return response()->json(['message' => 'Item not found.'], 404);
-        }
+        $jarak->delete(); // Menghapus jarak
     }
 
     //fungsi import

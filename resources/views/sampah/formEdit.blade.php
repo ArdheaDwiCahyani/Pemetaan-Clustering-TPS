@@ -1,7 +1,5 @@
 @extends('layouts.app')
 
-@section('title', 'Form Edit Data')
-
 @section('content')
     <form action="{{ route('sampah.tambah.update', $sampah->id) }} " method="post">
         @csrf

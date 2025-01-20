@@ -17,18 +17,7 @@ class kelurahanController extends Controller
         // Ambil semua data kecamatan untuk dropdown filter
         $kecamatan = Kecamatan::all();
 
-        // Ambil nilai filter dan jumlah item per halaman dari query string
-        $selectedKecamatan = $request->input('kecamatan_id');
-        $perPage = $request->input('per_page', 4);
-
-        // Query data kelurahan dengan filtering dan pagination
-        $kelurahan = Kelurahan::with('kecamatan')
-            ->when($selectedKecamatan, function ($query) use ($selectedKecamatan) {
-                $query->where('kecamatan_id', $selectedKecamatan);
-            })
-            ->paginate($perPage); // Gunakan jumlah item per halaman dari input
-
-        return view('kelurahan.index', compact('kelurahan', 'kecamatan', 'selectedKecamatan', 'perPage'));
+        return view('kelurahan.index', compact('kecamatan'));
     }
 
     public function allKelurahan()
@@ -49,29 +38,6 @@ class kelurahanController extends Controller
         // Return dalam format JSON
         return response()->json($response);
     }
-
-    public function handleSearch(Request $request)
-    {
-        // Ambil nilai input dari form
-        $search = $request->input('searchInput');
-
-        $columns = Schema::getColumnListing('kelurahan');
-
-        // Mulai query pencarian
-        $query = Kelurahan::query();
-
-        // Tambahkan kondisi pencarian untuk setiap kolom
-        foreach ($columns as $column) {
-            $query->orWhere($column, 'LIKE', '%' . $search . '%');
-        }
-
-        // Eksekusi query dan dapatkan hasil
-        $results = $query->get();
-
-        // Kembalikan data ke view
-        return response()->json(compact('results', 'search'));
-    }
-
 
     public function tambah()
     {
@@ -121,13 +87,7 @@ class kelurahanController extends Controller
     public function hapus($id)
     {
         $kelurahan = Kelurahan::find($id);
-
-        if ($kelurahan) {
-            $kelurahan->delete(); // Menghapus kelurahan
-            return response()->json(['message' => 'Item deleted successfully.']);
-        } else {
-            return response()->json(['message' => 'Item not found.'], 404);
-        }
+        $kelurahan->delete(); // Menghapus kelurahaN
     }
 
     //fungsi import
@@ -145,6 +105,8 @@ class kelurahanController extends Controller
 
         //ambil file yg diupload
         $file = $request->file('file');
+
+        //mengimpor data ke database
         Excel::import(new KelurahanImport, $file);
 
         return redirect()->route('kelurahan');

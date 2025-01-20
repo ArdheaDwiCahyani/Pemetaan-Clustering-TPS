@@ -1,7 +1,5 @@
 @extends('layouts.app')
 
-@section('title', 'Proses Clustering')
-
 @section('content')
     <div class="container-fluid py-4">
         <div class="row">

@@ -18,34 +18,19 @@ class SampahExport implements FromCollection, WithHeadings, ShouldAutoSize
 
     public function collection()
     {
-        $paramVolume = Parameter::where('namaParameter', 'Volume Sampah')->first();
-        $paramRataRataJarak = Parameter::where('namaParameter', 'Rata-Rata Jarak')->first();
-
-        if (!$paramVolume || !$paramRataRataJarak) {
-            return collect();
-        }
-
         return Sampah::where('tahun', $this->tahun)
-            ->with(['tps', 'tps.parameter'])
+            ->with('tps')
             ->get()
-            ->map(function ($sampah) use ($paramVolume, $paramRataRataJarak) {
-                $volume = $sampah->tps->parameter
-                    ->where('id', $paramVolume->id)
-                    ->pluck('pivot.nilai_parameter')
-                    ->first();
-
-                $rataRataJarak = $sampah->tps->parameter
-                    ->where('id', $paramRataRataJarak->id)
-                    ->pluck('pivot.nilai_parameter')
-                    ->first();
-
+            ->map(function ($sampah) {
                 return [
                     'nama_tps' => $sampah->tps->namaTPS ?? 'Tidak Diketahui',
                     'tahun' => $sampah->tahun,
-                    'volume_sampah' => $volume ?? 'Tidak Tersedia',
-                    'rata_rata_jarak' => $rataRataJarak ?? 'Tidak Tersedia',
+                    'volume_sampah' => $sampah->volumeSampah ?? 'Tidak Tersedia',
+                    'jarak_ke_tpa' => $sampah->tps->jarakTPA ?? 'Tidak Tersedia',
+                    'rata_rata_jarak' => $sampah->rataRataJarak ?? 'Tidak Tersedia',
                 ];
         });
+
     }
 
     public function headings(): array
@@ -54,6 +39,7 @@ class SampahExport implements FromCollection, WithHeadings, ShouldAutoSize
             'Nama TPS',
             'Tahun',
             'Volume Sampah (Ton)',
+            'Jarak ke TPA (Km)',
             'Rata-Rata Jarak (Km)',
         ];
     }

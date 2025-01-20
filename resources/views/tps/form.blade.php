@@ -1,7 +1,5 @@
 @extends('layouts.app')
 
-@section('title', 'Form Tambah Data')
-
 @section('content')
     <form action="{{ route('tps.tambah.simpan') }} " method="post" id="myForm">
         @csrf
@@ -20,7 +18,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="kelurahans_id" class="text-dark text-sm font-weight-medium">Kelurahan</label>
-                                <select class="form-control choices-single" name="kelurahans_id" id="kelurahans_id">
+                                <select class="form-control" name="kelurahans_id" id="kelurahans_id">
                                     <option value="" disabled selected>-- Pilih Kelurahan --</option>
                                     @foreach ($kelurahan as $row)
                                         <option value="{{ $row->id }}">{{ $row->namaKelurahan }}</option>
@@ -155,6 +153,7 @@
             }
         });
 
+        // menghilangkan pesan error saat user mulai mengetik
         document.getElementById("namaTPS").addEventListener("input", function() {
             document.getElementById("errorNamaTPS").style.display = "none";
         });

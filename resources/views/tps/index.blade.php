@@ -1,7 +1,5 @@
 @extends ('layouts.app')
 
-@section('title', 'Data TPS')
-
 @section('content')
     <div class="container-fluid py-4">
         <div class="row">
@@ -25,41 +23,6 @@
             </div>
         </div>
     </div>
-
-    <script>
-        // Fungsi untuk memuat script dan stylesheet secara dinamis
-        function loadScripts(callback) {
-            // Muat jQuery terlebih dahulu
-            var scriptJQuery = document.createElement("script");
-            scriptJQuery.src = "https://code.jquery.com/jquery-3.2.1.min.js";
-            scriptJQuery.type = "text/javascript";
-            scriptJQuery.onload = function() {
-                // Setelah jQuery dimuat, muat Select2 CSS
-                var linkSelect2 = document.createElement("link");
-                linkSelect2.rel = "stylesheet";
-                linkSelect2.href = "https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css";
-                document.head.appendChild(linkSelect2);
-
-                // Setelah Select2 CSS dimuat, muat Select2 JS
-                var scriptSelect2 = document.createElement("script");
-                scriptSelect2.src = "https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js";
-                scriptSelect2.type = "text/javascript";
-                scriptSelect2.onload = function() {
-                    // Semua script dan stylesheet sudah dimuat, jalankan callback untuk inisialisasi
-                    callback();
-                };
-                document.head.appendChild(scriptSelect2);
-            };
-            document.head.appendChild(scriptJQuery);
-        }
-
-        // Panggil loadScripts dan inisialisasi Select2 setelah semua script dimuat
-        loadScripts(function() {
-            $(document).ready(function() {
-                $("#filter-kecamatan").select2();
-            });
-        });
-    </script>
 
     <!-- Tambahkan CSS Kustom untuk DataTables -->
     <style>
@@ -231,16 +194,6 @@
                 $('.dataTables_filter input, .dataTables_length select').addClass(
                     'text-sm font-weight-medium text-dark');
 
-
-                // Filter berdasarkan kecamatan
-                $('#filter-kecamatan').on('change', function() {
-                    const filterValue = this.value;
-                    if (filterValue) {
-                        table.column(2).search(`^${filterValue}$`, true, false).draw();
-                    } else {
-                        table.column(2).search('').draw();
-                    }
-                });
             });
         }
 

@@ -70,7 +70,6 @@ Route::middleware(['first.visit'])->group(function () {
         Route::post('import', 'import')->name('kelurahan.import.simpan');
         Route::get('export', 'export')->name('kelurahan.export');
         Route::get('allKelurahan', 'allKelurahan')->name('allKelurahan');
-        // Route::get('search', 'handleSearch')->name('kelurahan.search');
     });
 
     Route::controller(tpsController::class)->prefix('tps')->group(function() {

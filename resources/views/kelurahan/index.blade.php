@@ -7,7 +7,7 @@
                 <div class="card mb-0">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-end mb-3" style="gap: 15px;">
-
+                            {{-- filter kecamatan --}}
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <div>
                                     <label for="filter-kecamatan"
@@ -40,7 +40,7 @@
     </div>
 
     <script>
-        // Fungsi untuk memuat script dan stylesheet secara dinamis
+        // Fungsi untuk memuat script dan stylesheet Select2 secara dinamis
         function loadScripts(callback) {
             // Muat jQuery terlebih dahulu
             var scriptJQuery = document.createElement("script");
@@ -74,7 +74,7 @@
         });
     </script>
 
-    <!-- Tambahkan CSS Kustom untuk DataTables -->
+    {{-- css tambahan --}}
     <style>
         /* Menyesuaikan ukuran dan jenis font untuk Search dan Show Entries */
         .dataTables_wrapper .dataTables_filter label,
@@ -174,10 +174,10 @@
         function initializeDataTable() {
             $(document).ready(function() {
                 const table = $('#data-table').DataTable({
-                    processing: true,
-                    responsive: true,
-                    autoWidth: false,
-                    paging: true,
+                    processing: true, //Menampilkan indikator loading saat DataTable sedang mengambil data
+                    responsive: true, //Membuat tabel responsif untuk perangkat mobile
+                    autoWidth: false, //Mencegah tabel mengatur lebar kolom secara otomatis
+                    paging: true, //Mengatifkan fitur pagination
                     deferRender: true,
                     ajax: {
                         "url": "{{ route('allKelurahan') }}",
@@ -201,6 +201,7 @@
                         }
                     },
                     language: {
+                        //Mengganti tombol next dan previous pada pagination dengan ikon Font Awesome
                         paginate: {
                             next: '<i class="fa fa-angle-double-right" aria-hidden="true"></i>',
                             previous: '<i class="fa fa-angle-double-left" aria-hidden="true"></i>'
@@ -220,7 +221,6 @@
                             data: 'kecamatan',
                             title: 'Kecamatan',
                             className: 'text-left text-dark text-sm font-weight-medium'
-                            // headerClassName: 'header-cell text-center text-primary font-weight-bold'
                         },
                         {
                             title: "Action",
@@ -242,7 +242,7 @@
                         `.replace(/:id/g, row.id);
                             }
                         }
-                    ],                    
+                    ],
                 });
 
                 // Tambahkan Kelas Argon ke Elemen Search dan Show Entries setelah DataTable diinisialisasi
@@ -251,12 +251,11 @@
                 $('.dataTables_filter input, .dataTables_length select').addClass(
                     'text-sm font-weight-medium text-dark');
 
-
                 // Filter berdasarkan kecamatan
                 $('#filter-kecamatan').on('change', function() {
-                    const filterValue = this.value;
+                    const filterValue = this.value; //Mengambil nilai yang dipilih dalam dropdown
                     if (filterValue) {
-                        table.column(2).search(`^${filterValue}$`, true, false).draw();
+                        table.column(2).search(`^${filterValue}$`, true, false).draw(); //Mengupdate tampilan tabel setelah filtering
                     } else {
                         table.column(2).search('').draw();
                     }

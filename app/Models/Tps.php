@@ -14,7 +14,7 @@ class Tps extends Model
 
     public function kelurahan()
     {
-        return $this->belongsTo(Kelurahan::class, 'kelurahans_id', 'id');
+        return $this->belongsTo(Kelurahan::class, 'kelurahans_id');
     }
 
     public function sampah()

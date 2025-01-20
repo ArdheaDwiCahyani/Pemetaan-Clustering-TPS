@@ -4,20 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Exports\SampahExport;
 use App\Imports\SampahImport;
-use App\Models\Parameter;
 use App\Models\Sampah;
 use App\Models\Tps;
-use Illuminate\Contracts\Support\ValidatedData;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 
 class sampahController extends Controller
 {
-
-    public function index(Request $request)
+    public function index()
     {
-        return view('sampah.index');
+        $sampah = Sampah::get();
+        return view('sampah.index', compact('sampah'));
     }
 
     //semua data sampah
@@ -127,13 +124,7 @@ class sampahController extends Controller
     public function hapus($id)
     {
         $sampah = Sampah::find($id);
-
-        if ($sampah) {
-            $sampah->delete(); // Menghapus sampah
-            return response()->json(['message' => 'Item deleted successfully.']);
-        } else {
-            return response()->json(['message' => 'Item not found.'], 404);
-        }
+        $sampah->delete(); // Menghapus sampah
     }
 
     //fungsi import
@@ -150,6 +141,7 @@ class sampahController extends Controller
         $request->validate([
             'file' => 'required|mimes:xlsx,xls,csv|max:2048',
         ]);
+        
         // Import file
         $import = new SampahImport($tahun); // Kirimkan tahun ke class import
 

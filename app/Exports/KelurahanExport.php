@@ -10,9 +10,6 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 
 class KelurahanExport implements FromCollection, WithHeadings, ShouldAutoSize
 {
-    /**
-    * @return \Illuminate\Support\Collection
-    */
     public function collection()
     {
         return Kelurahan::with('kecamatan')

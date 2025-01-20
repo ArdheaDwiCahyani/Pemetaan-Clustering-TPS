@@ -26,11 +26,6 @@
                         </div>
                     </a>
                 </li>
-
-                <!-- Additional navbar items (e.g., dropdown, notifications) -->
-                <li class="nav-item dropdown pe-2 d-flex align-items-center">
-                    <!-- Dropdown content can be added here -->
-                </li>
             </ul>
         </div>
     </div>

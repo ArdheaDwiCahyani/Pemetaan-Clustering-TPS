@@ -8,19 +8,11 @@ use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use PgSql\Lob;
 
 class JarakImport implements ToModel, WithHeadingRow, SkipsEmptyRows
 {
-    /**
-     * @param array $row
-     *
-     * @return \Illuminate\Database\Eloquent\Model|null
-     */
-
     public function model(array $row)
     {
-
         // Pastikan TPS asal dan tujuan ada dalam tabel Tps
         $tpsAsal = Tps::where('namaTPS', $row['tps_asal'])->first();
         $tpsTujuan = Tps::where('namaTPS', $row['tps_tujuan'])->first();
@@ -31,12 +23,13 @@ class JarakImport implements ToModel, WithHeadingRow, SkipsEmptyRows
             return null;
         }
 
-        // Membuat dan mengembalikan instance model Jarak
-        return new Jarak([
+        $jarak = Jarak::firstOrCreate([
             'tps_asal_id' => $tpsAsal->id,
             'tps_tujuan_id' => $tpsTujuan->id,
             'jarak' => $row['jarak'],
         ]);
+
+        return $jarak;
     }
 
     public function headingRow(): int

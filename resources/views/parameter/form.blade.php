@@ -1,7 +1,5 @@
 @extends('layouts.app')
 
-@section('title', 'Form Tambah Data')
-
 @section('content')
     <form action="{{ route('parameter.tambah.simpan') }}" method="post" id="myForm">
         @csrf

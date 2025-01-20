@@ -5,19 +5,15 @@ namespace App\Http\Controllers;
 use App\Exports\TpsExport;
 use App\Imports\TpsImport;
 use App\Models\Kelurahan;
-use App\Models\Parameter;
 use App\Models\Tps;
-
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 
 class tpsController extends Controller
 {
     public function index(Request $request)
     {
-
-        $tps = Tps::with(['kelurahan']);
+        $tps = Tps::get();
         $kelurahan = Kelurahan::all();
 
         return view('tps.index', compact('tps', 'kelurahan'));
@@ -58,7 +54,7 @@ class tpsController extends Controller
             'jarakTPA' => 'required|numeric',
         ]);
 
-        // Pastikan koordinat dibatasi dengan presisi tertentu sebelum disimpan
+        // memastikan koordinat dibatasi dengan presisi tertentu sebelum disimpan
         $latitude = round($validatedData['latitude'], 8);  // Menggunakan 8 angka desimal
         $longitude = round($validatedData['longitude'], 8);  // Menggunakan 8 angka desimal
 
@@ -107,12 +103,6 @@ class tpsController extends Controller
     {
         $tps = Tps::find($id);
         $tps->delete();
-
-        if ($tps) {
-            return response()->json(['message' => 'Item deleted successfully.']);
-        } else {
-            return response()->json(['message' => 'Item not found.'], 404);
-        }
     }
 
     //fungsi import
@@ -131,6 +121,7 @@ class tpsController extends Controller
         //ambil file yg diupload
         $file = $request->file('file');
 
+        //mengimpor data ke database
         Excel::import(new TpsImport, $file);
 
         return redirect()->route('tps');

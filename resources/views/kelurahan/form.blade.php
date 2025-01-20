@@ -1,7 +1,5 @@
 @extends('layouts.app')
 
-@section('title', 'Form Tambah Data')
-
 @section('content')
     <form action="{{ route('kelurahan.tambah.simpan') }}" method="post" id="myForm">
         @csrf
@@ -20,7 +18,7 @@
                             </div>
                             <div class="form-group mb-0">
                                 <label for="kecamatan_id" class="text-dark text-sm font-weight-medium">Kecamatan</label>
-                                <select class="form-select choices-single" name="kecamatan_id" id="kecamatan_id">
+                                <select class="form-select" name="kecamatan_id" id="kecamatan_id">
                                     <option value="" disabled selected>--- Pilih Kecamatan ---</option>
                                     @foreach ($kecamatan as $row)
                                         <option value="{{ $row->id }}">

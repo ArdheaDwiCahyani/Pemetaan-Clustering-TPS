@@ -1,7 +1,5 @@
 @extends('layouts.app')
 
-@section('title', 'Form Edit Data')
-
 @section('content')
     <form action="{{ route('tps.tambah.update', $tps->id) }}" method="post" id="myForm">
         @csrf
@@ -20,8 +18,8 @@
                             </div>
                             <div class="form-group">
                                 <label for="kelurahans_id" class="text-dark text-sm font-weight-medium">Kelurahan</label>
-                                <select class="form-control choices-single" name="kelurahans_id" id="kelurahans_id">
-                                    <option value="" disabled selected>--- Pilih kelurahan ---</option>
+                                <select class="form-control" name="kelurahans_id" id="kelurahans_id">
+                                    <option value="" disabled selected>-- Pilih kelurahan --</option>
                                     @foreach ($kelurahan as $row)
                                         <option value="{{ $row->id }}"
                                             {{ $row->id == $tps->kelurahans_id ? 'selected' : '' }}>

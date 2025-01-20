@@ -1,7 +1,5 @@
 @extends('layouts.app')
 
-@section('title', 'Form Tambah Data')
-
 @section('content')
     <form action="{{ route('sampah.tambah.simpan') }}" method="post" id="myForm">
         @csrf
@@ -64,6 +62,7 @@
         </div>
     </form>
 
+    {{-- script untuk mengatur nilai default pada kolom input tahun sesuai dengan tahun terpilih --}}
     <script>
         // Ambil nilai dari localStorage dengan key 'selectedYear'
         const selectedYear = localStorage.getItem('selectedYear');
@@ -77,6 +76,8 @@
             document.getElementById('errorTahun').style.display = 'block';
         }
     </script>
+
+    {{-- script untuk validasi inputan --}}
     <script>
         document.getElementById("myForm").addEventListener("submit", function(event) {
             let isFormValid = true;

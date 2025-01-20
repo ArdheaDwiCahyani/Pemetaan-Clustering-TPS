@@ -19,6 +19,7 @@ class parameterController extends Controller
         
         return response()->json($params);
     }
+
     public function tambah()
     {
         $parameter = Parameter::all();
@@ -42,12 +43,11 @@ class parameterController extends Controller
     {
         $parameter = Parameter::find($id);
 
-        return view('parameter.formEdit', ['parameter' => $parameter]);
+        return view('parameter.formEdit', compact('parameter'));
     }
 
     public function update($id, Request $request)
     {
-
         $validatedData = $request->validate([
             'namaParameter' => 'required|string|min:5|max:50',
         ]);
@@ -64,12 +64,6 @@ class parameterController extends Controller
     public function hapus($id)
     {
         $parameter = Parameter::find($id);
-
-        if ($parameter) {
-            $parameter->delete(); // Menghapus parameter
-            return response()->json(['message' => 'Item deleted successfully.']);
-        } else {
-            return response()->json(['message' => 'Item not found.'], 404);
-        }
+        $parameter->delete(); // Menghapus parameter
     }
 }

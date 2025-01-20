@@ -64,12 +64,6 @@ class kecamatanController extends Controller
     public function hapus($id)
     {
         $kecamatan = Kecamatan::find($id);
-
-        if ($kecamatan) {
-            $kecamatan->delete(); // Menghapus kecamatan
-            return response()->json(['message' => 'Item deleted successfully.']);
-        } else {
-            return response()->json(['message' => 'Item not found.'], 404);
-        }
+        $kecamatan->delete();
     }
 }

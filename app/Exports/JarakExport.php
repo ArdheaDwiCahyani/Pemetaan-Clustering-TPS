@@ -7,11 +7,8 @@ use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 
-class JarakExport implements FromCollection, WithHeadings, ShouldAutoSize
+class JarakExport implements FromCollection, WithHeadings, ShouldAutoSize // mengikuti panjang data yang diekspor
 {
-    /**
-    * @return \Illuminate\Support\Collection
-    */
     public function collection()
     {
         return Jarak::with('tpsAsal', 'tpsTujuan')->get()->map(function ($jarak) {

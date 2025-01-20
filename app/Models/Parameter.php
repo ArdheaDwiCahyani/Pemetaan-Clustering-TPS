@@ -12,18 +12,4 @@ class Parameter extends Model
     protected $primaryKey = 'id';
     protected $fillable = ['namaParameter'];
 
-
-    public function sampah()
-    {
-        return $this->belongsToMany(Sampah::class, 'tpsParameter', 'params_id', 'sampah_id')
-            ->withPivot('nilai_parameter')
-            ->wherePivot('entity', 'sampah');
-    }
-
-    public function tps()
-    {
-        return $this->belongsToMany(Tps::class, 'tpsParameter', 'params_id', 'tps_id')
-            ->withPivot('nilai_parameter')
-            ->wherePivot('entity', 'tps');
-    }
 }

@@ -26,4 +26,48 @@
             </div>
         </div>
     </form>
+
+    <script>
+        document.getElementById("myForm").addEventListener("submit", function(event) {
+            // Ambil elemen input nama kecamatan
+            var namaKecamatan = document.getElementById("namaKecamatan");
+            var errorNamaKecamatan = document.getElementById("errorNamaKecamatan");
+
+            // Variabel untuk melacak apakah form valid atau tidak
+            var isFormValid = true;
+
+            // Cek jika kolom namaKecamatan masih kosong
+            if (namaKecamatan.value.trim() === "") {
+                errorNamaKecamatan.textContent = "Kolom tidak boleh kosong!";
+                errorNamaKecamatan.style.display = "block"; // Menampilkan pesan kesalahan
+                isFormValid = false;
+            } else if (/[^a-zA-Z\s]/.test(namaKecamatan.value.trim())) {
+                errorNamaKecamatan.textContent = "Kolom hanya boleh berisi huruf!";
+                errorNamaKecamatan.style.display = "block"; // Menampilkan pesan kesalahan
+                isFormValid = false;
+            } else if (namaKecamatan.value.trim().length < 5) {
+                event.preventDefault();
+                errorNamaKecamatan.textContent = "Nama kecamatan minimal 5 karakter";
+                errorNamaKecamatan.style.display = "block";
+                isFormValid = false;
+            } else if (namaKecamatan.value.trim().length > 100) {
+                event.preventDefault();
+                errorNamaKecamatan.textContent = "Nama kecamatan maksimal 100 karakter";
+                errorNamaKecamatan.style.display = "block";
+                isFormValid = false;
+            } else {
+                errorNamaKecamatan.style.display = "none"; // Sembunyikan pesan kesalahan jika tidak ada error
+            }
+
+            // Cegah pengiriman form jika tidak valid
+            if (!isFormValid) {
+                event.preventDefault();
+            }
+        });
+
+        // Menyembunyikan pesan kesalahan saat pengguna mulai mengetik pada namaKecamatan
+        document.getElementById("namaKecamatan").addEventListener("input", function() {
+            document.getElementById("errorNamaKecamatan").style.display = "none";
+        });
+    </script>
 @endsection

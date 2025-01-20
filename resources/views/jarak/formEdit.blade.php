@@ -1,7 +1,5 @@
 @extends('layouts.app')
 
-@section('title', 'Form Edit Jarak')
-
 @section('content')
     <form action="{{ route('jarak.tambah.update', $jarak->id) }} " method="post" id="myForm">
         @csrf
@@ -12,7 +10,7 @@
                         <div class="card-body2 mb-0">
                             <div class="form-group mb-4">
                                 <label for="tps_asal_id" class="text-dark text-sm font-weight-medium">TPS Asal</label>
-                                <select name="tps_asal_id" id="tps_asal_id" class="form-control choices-single" required>
+                                <select name="tps_asal_id" id="tps_asal_id" class="form-control" required>
                                     @foreach ($tps as $row)
                                         <option
                                             value="{{ $row->id }}" {{ $jarak->tps_asal_id == $row->id ? 'selected' : '' }}>
@@ -22,8 +20,7 @@
                             </div>
                             <div class="form-group mb-4">
                                 <label for="tps_tujuan_id" class="text-dark text-sm font-weight-medium">TPS Tujuan</label>
-                                <select name="tps_tujuan_id" id="tps_tujuan_id" class="form-control choices-single" required>
-                                    <option value="" disabled selected>--- Pilih TPS Tujuan ---</option>
+                                <select name="tps_tujuan_id" id="tps_tujuan_id" class="form-control" required>
                                     @foreach ($tps as $row)
                                         <option
                                             value="{{ $row->id }}" {{ $jarak->tps_tujuan_id == $row->id ? 'selected' : '' }}>

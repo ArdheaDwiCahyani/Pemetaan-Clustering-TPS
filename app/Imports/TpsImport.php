@@ -9,13 +9,8 @@ use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
-class TpsImport implements ToModel, WithHeadingRow
+class TpsImport implements ToModel, WithHeadingRow, SkipsEmptyRows
 {
-    /**
-    * @param array $row
-    *
-    * @return \Illuminate\Database\Eloquent\Model|null
-    */
     public function model(array $row)
     {
         $kelurahan = Kelurahan::where('namaKelurahan', $row['nama_kelurahan'])->first();
@@ -34,5 +29,10 @@ class TpsImport implements ToModel, WithHeadingRow
         ]);
 
         return $tps;
+    }
+
+    public function headingRow(): int
+    {
+        return 1; // Baris pertama sebagai header
     }
 }

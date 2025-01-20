@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Sampah extends Model
@@ -13,18 +12,18 @@ class Sampah extends Model
 
     public function tps()
     {
-        return $this->belongsTo(Tps::class, 'tps_id', 'id');
+        return $this->belongsTo(Tps::class, 'tps_id');
     }
 
-    //hitung rata-rata jarak
+    //hitung rata-rata jarak (accessor)
     public function getRataRataJarakAttribute()
     {
         $tps = $this->tps;
 
         if ($tps) {
-            return round($tps->jarakKeTujuan()->avg('jarak'), 2);
+            $average = $tps->jarakKeTujuan()->avg('jarak'); // dihitung berdasarkan tps asal yang sama
+            return number_format($average, 2, '.', ''); // membuat format 2 angka di belakang koma secara konsisten
         }
-
         return null;
     }
 }

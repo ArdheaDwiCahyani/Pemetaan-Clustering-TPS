@@ -1,7 +1,5 @@
 @extends('layouts.app')
 
-@section('title', 'Form Edit Data')
-
 @section('content')
     <form action="{{ route('kelurahan.tambah.update', $kelurahan->id) }}" method="post" id="myForm">
         @csrf
@@ -104,5 +102,4 @@
             document.getElementById("errorKecamatan").style.display = "none";
         });
     </script>
-
 @endsection

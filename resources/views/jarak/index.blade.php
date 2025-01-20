@@ -1,7 +1,5 @@
 @extends ('layouts.app')
 
-@section('title', 'Data Jarak Antar TPS')
-
 @section('content')
     <div class="container-fluid py-4">
         <div class="row">
@@ -55,58 +53,7 @@
             border: 1px solid #ced4da;
             border-radius: 0.375rem;
         }
-
-        .select2-container .select2-selection--single {
-            font-size: 0.875rem;
-            background-color: #f8f9fa;
-            border-radius: 5px;
-            /* padding: 5px; */
-            border: 1px solid #ccc;
-        }
-
-        .select2-container .select2-selection--single .select2-selection__rendered {
-            color: #344767;
-            font-size: 0.875rem;
-            /* font-weight: bold; */
-        }
-
-        .select2-container .select2-selection--single .select2-selection__arrow {
-            color: #344767;
-            font-size: 0.875rem;
-        }
-
-        .select2-dropdown .select2-results__option {
-            font-size: 0.875rem;
-        }
     </style>
-
-    <script>
-        // Fungsi untuk memuat script dan stylesheet secara dinamis
-        function loadScripts(callback) {
-            // Muat jQuery terlebih dahulu
-            var scriptJQuery = document.createElement("script");
-            scriptJQuery.src = "https://code.jquery.com/jquery-3.2.1.min.js";
-            scriptJQuery.type = "text/javascript";
-            scriptJQuery.onload = function() {
-                // Setelah jQuery dimuat, muat Select2 CSS
-                var linkSelect2 = document.createElement("link");
-                linkSelect2.rel = "stylesheet";
-                linkSelect2.href = "https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css";
-                document.head.appendChild(linkSelect2);
-
-                // Setelah Select2 CSS dimuat, muat Select2 JS
-                var scriptSelect2 = document.createElement("script");
-                scriptSelect2.src = "https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js";
-                scriptSelect2.type = "text/javascript";
-                scriptSelect2.onload = function() {
-                    // Semua script dan stylesheet sudah dimuat, jalankan callback untuk inisialisasi
-                    callback();
-                };
-                document.head.appendChild(scriptSelect2);
-            };
-            document.head.appendChild(scriptJQuery);
-        }
-    </script>
 
     <script>
         // Fungsi untuk memuat jQuery dan DataTable hanya saat diperlukan
@@ -228,5 +175,4 @@
         // Panggil fungsi loadDataTableScript untuk memuat semua script yang dibutuhkan, kemudian inisialisasi DataTable
         loadDataTableScript(initializeDataTable);
     </script>
-
 @endsection

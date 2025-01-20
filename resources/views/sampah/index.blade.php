@@ -1,7 +1,5 @@
 @extends('layouts.app')
 
-@section('title', 'Data Sampah')
-
 @section('content')
     <div class="container-fluid py-4">
         <div class="row">
@@ -9,6 +7,7 @@
                 <div class="card mb-4">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center mb-3">
+                            {{-- menambahkan tahun --}}
                             <form action="" method="POST" id="tambah_tahun"
                                 class="d-flex align-items-center mb-2 mb-sm-0">
                                 @csrf
@@ -19,6 +18,7 @@
                                 <button type="submit" class="btn btn-primary d-flex align-items-center mb-2 mb-sm-0">Tambah
                                     Tahun</button>
                             </form>
+                            {{-- button --}}
                             <div class="d-flex">
                                 <a id="add-btn" class="btn btn-outline-primary bs-btn-active-bg mb-3 ms-1"
                                     href="#">Tambah</a>
@@ -29,6 +29,7 @@
                             </div>
                         </div>
 
+                        {{-- dropdown tahun --}}
                         <div class="d-flex flex-column mb-3">
                             <div class="d-flex flex-column flex-sm-row mb-0">
                                 <div class="me-sm-2 mb-2 mb-sm-0" style="width: 21%">
@@ -93,29 +94,6 @@
             border: 1px solid #ced4da;
             border-radius: 0.375rem;
         }
-
-        .select2-container .select2-selection--single {
-            font-size: 0.875rem;
-            background-color: #f8f9fa;
-            border-radius: 5px;
-            /* padding: 5px; */
-            border: 1px solid #ccc;
-        }
-
-        .select2-container .select2-selection--single .select2-selection__rendered {
-            color: #344767;
-            font-size: 0.875rem;
-            /* font-weight: bold; */
-        }
-
-        .select2-container .select2-selection--single .select2-selection__arrow {
-            color: #344767;
-            font-size: 0.875rem;
-        }
-
-        .select2-dropdown .select2-results__option {
-            font-size: 0.875rem;
-        }
     </style>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -125,12 +103,15 @@
         // Fungsi untuk menyimpan tahun ke localStorage
         document.getElementById('tambah_tahun').addEventListener('submit', function(e) {
             e.preventDefault(); // Mencegah reload halaman
-            const tahunInput = document.getElementById('tahun').value;
+            const tahunInput = document.getElementById('tahun').value; //mengambil nilai input tahun
             if (tahunInput) {
-                let tahunList = JSON.parse(localStorage.getItem('tahunList')) || [];
-                if (!tahunList.includes(tahunInput)) {
-                    tahunList.push(tahunInput);
-                    localStorage.setItem('tahunList', JSON.stringify(tahunList));
+                let tahunList = JSON.parse(localStorage.getItem('tahunList')) ||
+            []; //mengambil daftar tahun dari localstorage
+                if (!tahunList.includes(tahunInput)) { //Mengecek apakah tahunInput belum ada dalam daftar tahunList
+                    tahunList.push(tahunInput); //tambahkan tahun input ke tahun list
+                    localStorage.setItem('tahunList', JSON.stringify(
+                        tahunList
+                        )); // Menyimpan kembali tahunList ke dalam localStorage setelah diubah menjadi format JSON
 
                     // Gunakan SweetAlert untuk notifikasi sukses
                     Swal.fire({
@@ -150,31 +131,37 @@
                         confirmButtonText: 'OK'
                     });
                 }
-                document.getElementById('tahun').value = ''; // Reset input
+                document.getElementById('tahun').value = ''; // Reset kolom input
             }
         });
 
         // Fungsi untuk mengisi elemen select dengan data dari DataTable dan localStorage
         function populateSelect() {
+            // Mengambil elemen <select> dengan id="tahun", yang nantinya akan diisi dengan daftar tahun
             const selectElement = document.querySelector('select#tahun');
+            // ambil tahun dari local storage
             const tahunList = JSON.parse(localStorage.getItem('tahunList')) || [];
 
             // Lakukan fetch data dari allSampah
             fetch("{{ route('allSampah') }}")
-                .then(response => response.json())
+                .then(response => response.json()) // Mengonversi hasil dari API ke dalam format JSON
                 .then(data => {
-                    const tahunFromApi = [...new Set(data.map(item => item.tahun))];
-                    const allYears = [...new Set([...tahunFromApi, ...tahunList])];
+                    const tahunFromApi = [...new Set(data.map(item => item.tahun))]; // ekstraksi tahun dari API
+                    const allYears = [...new Set([...tahunFromApi, ...
+                        tahunList
+                    ])]; // gabung data dari API dan local storage
 
-                    selectElement.innerHTML = '<option value="">Semua Tahun</option>';
+                    selectElement.innerHTML =
+                        '<option value="">Semua Tahun</option>'; // Mengatur ulang isi <select> dengan opsi default "Semua Tahun"
+                    // Melakukan iterasi pada daftar tahun
                     allYears.forEach(tahun => {
                         const option = document.createElement('option');
                         option.value = tahun;
                         option.textContent = tahun;
-                        selectElement.appendChild(option);
+                        selectElement.appendChild(option); //Menambahkan opsi ke dalam <select>
                     });
 
-                    // Setelah elemen diisi, muat tahun yang dipilih dari localStorage
+                    // Memuat Tahun yang Terakhir Dipilih
                     loadSelectedYear();
                 })
                 .catch(error => console.error("Error fetching tahun data:", error));
@@ -182,8 +169,10 @@
 
         // Fungsi untuk memfilter data di DataTable berdasarkan tahun
         function autoSubmit() {
-            const selectElement = document.querySelector('select#tahun');
-            const selectedYear = selectElement.value.trim();
+            const selectElement = document.querySelector(
+            'select#tahun'); // Mengambil elemen <select> yang memiliki id="tahun"
+            const selectedYear = selectElement.value
+        .trim(); // Mengambil nilai tahun yang dipilih, lalu trim() digunakan untuk menghapus spasi di awal dan akhir
 
             // Simpan tahun yang dipilih ke localStorage
             if (selectedYear) {
@@ -198,13 +187,14 @@
             if (selectedYear) {
                 dataTable.columns(2).search(selectedYear).draw();
             } else {
-                dataTable.columns(2).search('').draw(); // Reset filter
+                dataTable.columns(2).search('').draw(); // Reset filter jika tidak ada tahun yang terpilih
             }
         }
 
+        // fungsi untuk mengambil tahun terakhir yang dipilih dari localstorage
         function loadSelectedYear() {
             const selectElement = document.querySelector('select#tahun');
-            const savedYear = localStorage.getItem('selectedYear');
+            const savedYear = localStorage.getItem('selectedYear'); // Mengambil nilai tahun yang tersimpan di localStorage
 
             if (savedYear) {
                 selectElement.value = savedYear;
@@ -219,7 +209,7 @@
 
         //mengirim link a href secara dinamis
         document.addEventListener("DOMContentLoaded", function() {
-            
+
             // Ambil tombol berdasarkan ID atau kelas
             const importBtn = document.getElementById('import-btn');
             const addBtn = document.getElementById('add-btn');
@@ -232,7 +222,7 @@
 
                 // Setel href dinamis berdasarkan nilai tahun dari localStorage untuk tombol import
                 if (importBtn) {
-                    importBtn.href = "{{ route('sampah.import', ['tahun' => '']) }}" + selectedYear; 
+                    importBtn.href = "{{ route('sampah.import', ['tahun' => '']) }}" + selectedYear;
                 }
 
                 // Setel href dinamis untuk tombol tambah (misalnya menuju halaman tambah berdasarkan tahun)
@@ -249,10 +239,13 @@
 
         // Fungsi untuk menghapus tahun dari localStorage
         function removeYear() {
+            // Mengambil nilai tahun yang saat ini dipilih dalam elemen <select> dengan id="tahun"
             const selectedYear = document.querySelector('select#tahun').value;
             let tahunList = JSON.parse(localStorage.getItem('tahunList')) || [];
 
-            if (tahunList.includes(selectedYear)) {
+            if (tahunList.includes(
+                selectedYear)) { // cek apakah tahun yang dipilih (selectedYear) ada di dalam array tahunList
+                // Menghapus Tahun dari tahunList
                 tahunList = tahunList.filter(tahun => tahun !== selectedYear);
                 localStorage.setItem('tahunList', JSON.stringify(tahunList));
 
@@ -264,8 +257,8 @@
                     confirmButtonText: 'OK'
                 });
 
-                populateSelect(); // Memperbarui select setelah menghapus
-                autoSubmit();
+                populateSelect(); // Memperbarui daftar tahun select setelah menghapus
+                autoSubmit(); // Memastikan DataTable diperbarui setelah tahun dihapus
             } else {
                 // SweetAlert jika tahun tidak ditemukan di daftar
                 Swal.fire({
@@ -277,6 +270,7 @@
             }
         }
 
+        // fungsi untuk mengatur visibilitas button hapus tahun terpilih
         function setupRemoveButtonVisibility() {
             const removeButton = document.getElementById('remove-year-btn');
 
@@ -428,8 +422,6 @@
             });
 
         }
-
         loadDataTableScript(initializeDataTable);
     </script>
-
 @endsection

@@ -8,7 +8,6 @@ use App\Models\Kelurahan;
 use App\Models\Parameter;
 use App\Models\Sampah;
 use App\Models\Tps;
-use Illuminate\Http\Request;
 
 class dashboardController extends Controller
 {
